@@ -1,0 +1,22 @@
+CXX_STD = CXX11
+PKG_LIBS = -pthread
+PKG_CPPFLAGS = -pthread -DSTRICT_R_HEADERS -I./word2vec/include -I./word2vec/lib
+
+SOURCES = word2vec/lib/huffmanTree.cpp \
+			word2vec/lib/mapper.cpp \
+			word2vec/lib/nsDistribution.cpp \
+			word2vec/lib/trainer.cpp \
+			word2vec/lib/trainThread.cpp \
+			word2vec/lib/vocabulary.cpp \
+			word2vec/lib/win/mman.cpp \
+			word2vec/lib/word2vec.cpp \
+			rcpp_word2vec.cpp \
+			RcppExports.cpp
+
+OBJECTS = $(SOURCES:.cpp=.o)
+
+.PHONY: all 
+
+all: $(SHLIB); rm -f $(OBJECTS) 
+
+

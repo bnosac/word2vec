@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+.travis.yml
+LICENSE$
+inst/extdata
+inst/extdata/dekamer.txt
+dev
