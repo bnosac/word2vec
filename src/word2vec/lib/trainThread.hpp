@@ -15,6 +15,7 @@
 #include <atomic>
 #include <functional>
 #include <vector>
+#include <stdexcept>
 
 #include "word2vec.hpp"
 #include "wordReader.hpp"

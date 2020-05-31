@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <stdexcept>
 
 #include "word2vec.hpp"
 #include "wordReader.hpp"
