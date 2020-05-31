@@ -203,7 +203,7 @@ Rcpp::NumericMatrix w2v_embedding(SEXP ptr, Rcpp::StringVector x) {
   rownames(embedding) = x;
   std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
   
-  for (unsigned int i = 0; i < x.size(); i++){
+  for (int i = 0; i < x.size(); i++){
     std::string input = Rcpp::as<std::string>(x[i]);
     auto vec = model->vector(input);
     if (vec != nullptr) {
