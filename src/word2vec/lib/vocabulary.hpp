@@ -13,6 +13,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <stdexcept>
 
 #include "word2vec.hpp"
 #include "mapper.hpp"
