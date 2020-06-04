@@ -80,6 +80,16 @@ nn
 ## Get vocabulary
 vocab <- summary(model, type = "vocabulary")
 
+# Do some calculations with the vectors and find similar terms to these
+emb <- as.matrix(model)
+vector <- emb["buurt", ] - emb["rustige", ] + emb["restaurants", ]
+predict(model, vector, type = "nearest", top_n = 10)
+vector <- emb["gastvrouw", ] - emb["gastvrij", ]
+predict(model, vector, type = "nearest", top_n = 5)
+vectors <- emb[c("gastheer", "gastvrouw"), ]
+vectors <- rbind(vectors, avg = colMeans(vectors))
+predict(model, vectors, type = "nearest", top_n = 10)
+
 ## Save the model to hard disk
 path <- "mymodel.bin"
 \dontshow{

@@ -43,6 +43,16 @@
 #' ## Get vocabulary
 #' vocab <- summary(model, type = "vocabulary")
 #' 
+#' # Do some calculations with the vectors and find similar terms to these
+#' emb <- as.matrix(model)
+#' vector <- emb["buurt", ] - emb["rustige", ] + emb["restaurants", ]
+#' predict(model, vector, type = "nearest", top_n = 10)
+#' vector <- emb["gastvrouw", ] - emb["gastvrij", ]
+#' predict(model, vector, type = "nearest", top_n = 5)
+#' vectors <- emb[c("gastheer", "gastvrouw"), ]
+#' vectors <- rbind(vectors, avg = colMeans(vectors))
+#' predict(model, vectors, type = "nearest", top_n = 10)
+#' 
 #' ## Save the model to hard disk
 #' path <- "mymodel.bin"
 #' \dontshow{
@@ -119,6 +129,7 @@ as.matrix.w2v <- function(x, ...){
     x 
 }
 
+
 #' @export
 as.matrix.w2v_trained <- function(x, ...){
     as.matrix.w2v(x)
@@ -192,6 +203,14 @@ write.word2vec <- function(x, file, type = c("bin", "txt")){
 #' emb
 #' nn  <- predict(model, c("bus", "toilet"), type = "nearest")
 #' nn
+#' 
+#' # Do some calculations with the vectors and find similar terms to these
+#' emb <- as.matrix(model)
+#' vector <- emb["gastvrouw", ] - emb["gastvrij", ]
+#' predict(model, vector, type = "nearest", top_n = 5)
+#' vectors <- emb[c("gastheer", "gastvrouw"), ]
+#' vectors <- rbind(vectors, avg = colMeans(vectors))
+#' predict(model, vectors, type = "nearest", top_n = 10)
 read.word2vec <- function(file){
     stopifnot(file.exists(file))
     w2v_load_model(file)
@@ -218,10 +237,21 @@ predict.w2v <- function(object, newdata, type = c("nearest", "embedding"), ...){
     if(type == "embedding"){
         x <- w2v_embedding(object$model, x = newdata)
     }else if(type == "nearest"){
-        x <- lapply(newdata, FUN=function(x){
-            w2v_nearest(object$model, x = x, ...)    
-        })
-        names(x) <- newdata
+        if(is.character(newdata)){
+            x <- lapply(newdata, FUN=function(x, ...){
+                w2v_nearest(object$model, x = x, ...)    
+            }, ...)
+            names(x) <- newdata    
+        }else if(is.matrix(newdata)){
+            x <- lapply(seq_len(nrow(newdata)), FUN=function(i, ...){
+                w2v_nearest_vector(object$model, x = newdata[i, ], ...)    
+            }, ...)
+            if(!is.null(rownames(newdata))){
+                names(x) <- rownames(newdata)    
+            }
+        }else if(is.numeric(newdata)){
+            x <- w2v_nearest_vector(object$model, x = newdata, ...)    
+        }
     }
     x
 }

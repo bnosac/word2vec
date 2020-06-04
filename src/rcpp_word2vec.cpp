@@ -252,54 +252,32 @@ Rcpp::DataFrame w2v_nearest(SEXP ptr,
 }
 
 
-
-
 // [[Rcpp::export]]
-Rcpp::List w2v_analogy(SEXP ptr, 
-                       Rcpp::StringVector x, 
-                       std::size_t n = 10,
-                       float min_distance = 0.0) {
-  Rcpp::List out;
+Rcpp::List w2v_nearest_vector(SEXP ptr, 
+                              const std::vector<float> &x, 
+                              std::size_t top_n = 10,
+                              float min_distance = 0.0) {
   Rcpp::XPtr<w2v::w2vModel_t> model(ptr);
+  w2v::vector_t *vec = new w2v::vector_t(x);
+  
   std::vector<std::pair<std::string, float>> nearest;
-  
-  std::string word1, word2, word3;
-  
-  try {
-  word1 = Rcpp::as<std::string>(x[0]);
-  word2 = Rcpp::as<std::string>(x[1]);
-  word3 = Rcpp::as<std::string>(x[2]);
-  //w2v::word2vec_t vec1(model, &word1);
-  //w2v::word2vec_t vec2(model, &word2);
-  //w2v::word2vec_t vec3(model, &word3);
-
-  w2v::vector_t vec1 = *(model->vector(word1));
-  w2v::vector_t vec2 = *(model->vector(word2));
-  w2v::vector_t vec3 = *(model->vector(word3));
-  w2v::vector_t vec = vec2 - vec1 + vec3;
-  //w2v::vector_t result = king - man + woman;
-  
-  model->nearest(vec, nearest, n, min_distance);
+  model->nearest(*vec, nearest, top_n, min_distance);
   
   std::vector<std::string> keys;
   std::vector<float> distance;
+  std::vector<int> rank;
+  int r = 0;
   for(auto kv : nearest) {
     keys.push_back(kv.first);
     distance.push_back(kv.second);
+    r = r + 1;
+    rank.push_back(r);
   } 
-  out = Rcpp::List::create(
+  Rcpp::DataFrame out = Rcpp::DataFrame::create(
     Rcpp::Named("term") = keys,
-    Rcpp::Named("distance") = distance
+    Rcpp::Named("similarity") = distance,
+    Rcpp::Named("rank") = rank
   );
-  } catch (const std::exception &_e) {
-    Rcpp::stop(_e.what());
-  } catch (...) {
-    Rcpp::stop("unknown error");
-  }
   return out;
 }
 
-
-  
-  
-  

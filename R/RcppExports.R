@@ -25,7 +25,7 @@ w2v_nearest <- function(ptr, x, top_n = 10L, min_distance = 0.0) {
     .Call('_word2vec_w2v_nearest', PACKAGE = 'word2vec', ptr, x, top_n, min_distance)
 }
 
-w2v_analogy <- function(ptr, x, n = 10L, min_distance = 0.0) {
-    .Call('_word2vec_w2v_analogy', PACKAGE = 'word2vec', ptr, x, n, min_distance)
+w2v_nearest_vector <- function(ptr, x, top_n = 10L, min_distance = 0.0) {
+    .Call('_word2vec_w2v_nearest_vector', PACKAGE = 'word2vec', ptr, x, top_n, min_distance)
 }
 

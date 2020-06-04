@@ -29,4 +29,12 @@ emb <- predict(model, c("bus", "naar", "unknownword"), type = "embedding")
 emb
 nn  <- predict(model, c("bus", "toilet"), type = "nearest")
 nn
+
+# Do some calculations with the vectors and find similar terms to these
+emb <- as.matrix(model)
+vector <- emb["gastvrouw", ] - emb["gastvrij", ]
+predict(model, vector, type = "nearest", top_n = 5)
+vectors <- emb[c("gastheer", "gastvrouw"), ]
+vectors <- rbind(vectors, avg = colMeans(vectors))
+predict(model, vectors, type = "nearest", top_n = 10)
 }
