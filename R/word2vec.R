@@ -23,6 +23,7 @@
 #' \item{control: as list of the training arguments used, namely min_count, dim, window, iter, lr, skipgram, hs, negative, sample, split_words, split_sents, expTableSize and expValueMax}
 #' }
 #' @references \url{https://github.com/maxoodf/word2vec}
+#' @seealso \code{\link{predict.word2vec}}, \code{\link{as.matrix.word2vec}}
 #' @export
 #' @examples
 #' library(udpipe)
@@ -47,8 +48,10 @@
 #' emb <- as.matrix(model)
 #' vector <- emb["buurt", ] - emb["rustige", ] + emb["restaurants", ]
 #' predict(model, vector, type = "nearest", top_n = 10)
+#' 
 #' vector <- emb["gastvrouw", ] - emb["gastvrij", ]
 #' predict(model, vector, type = "nearest", top_n = 5)
+#' 
 #' vectors <- emb[c("gastheer", "gastvrouw"), ]
 #' vectors <- rbind(vectors, avg = colMeans(vectors))
 #' predict(model, vectors, type = "nearest", top_n = 10)
@@ -144,9 +147,20 @@ word2vec <- function(x,
 }
 
 
-
+#' @title Get the word vectors of a word2vec model
+#' @description Get the word vectors of a word2vec model as a matrix.
+#' @param x a word2vec model as returned by \code{\link{word2vec}} or \code{\link{read.word2vec}}
+#' @param ... not used
+#' @return a matrix with the word vectors where the rownames are the words from the model vocabulary
 #' @export
-as.matrix.w2v <- function(x, ...){
+#' @seealso \code{\link{word2vec}}, \code{\link{read.word2vec}}
+#' @export
+#' @examples 
+#' path  <- system.file(package = "word2vec", "models", "example.bin")
+#' model <- read.word2vec(path)
+#' 
+#' embedding <- as.matrix(model)
+as.matrix.word2vec <- function(x, ...){
     words <- w2v_dictionary(x$model)
     x <- w2v_embedding(x$model, words)
     x 
@@ -154,8 +168,8 @@ as.matrix.w2v <- function(x, ...){
 
 
 #' @export
-as.matrix.w2v_trained <- function(x, ...){
-    as.matrix.w2v(x)
+as.matrix.word2vec_trained <- function(x, ...){
+    as.matrix.word2vec(x)
 }
 
 
@@ -240,7 +254,7 @@ read.word2vec <- function(file){
 }
 
 #' @export
-summary.w2v <- function(object, type = "vocabulary", ...){
+summary.word2vec <- function(object, type = "vocabulary", ...){
     type <- match.arg(type)
     if(type == "vocabulary"){
         w2v_dictionary(object$model)
@@ -250,44 +264,84 @@ summary.w2v <- function(object, type = "vocabulary", ...){
 }
 
 #' @export
-summary.w2v_trained <- function(object, type = "vocabulary", ...){
-    summary.w2v(object = object, type = type, ...)
+summary.word2vec_trained <- function(object, type = "vocabulary", ...){
+    summary.word2vec(object = object, type = type, ...)
 }
 
+
+
+#' @title Predict functionalities for a word2vec model
+#' @description Get either 
+#' \itemize{
+#' \item{the embedding of words}
+#' \item{the nearest words which are similar to either a word or a word vector}
+#' }
+#' @param object a word2vec model as returned by \code{\link{word2vec}} or \code{\link{read.word2vec}}
+#' @param newdata for type 'embedding', \code{newdata} should be a character vector of words\cr
+#' for type 'nearest', \code{newdata} should be a character vector of words or a matrix in the embedding space
+#' @param type either 'embedding' or 'nearest'. Defaults to 'nearest'.
+#' @param top_n show only the top n nearest neighbours. Defaults to 10.
+#' @param ... not used
+#' @return depending on the type, you get a different result back:
+#' \itemize{
+#' \item{for type nearest: a list of data.frames with columns term, similarity and rank indicating with words which are closest to the provided \code{newdata} words or word vectors. If \code{newdata} is just one vector instead of a matrix, it returns a data.frame}
+#' \item{for type embedding: a matrix of word vectors of the words provided in \code{newdata}}
+#' }
+#' @seealso \code{\link{word2vec}}, \code{\link{read.word2vec}}
 #' @export
-predict.w2v <- function(object, newdata, type = c("nearest", "embedding"), ...){
+#' @examples 
+#' path  <- system.file(package = "word2vec", "models", "example.bin")
+#' model <- read.word2vec(path)
+#' emb <- predict(model, c("bus", "toilet", "unknownword"), type = "embedding")
+#' emb
+#' nn  <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
+#' nn
+#' 
+#' # Do some calculations with the vectors and find similar terms to these
+#' emb <- as.matrix(model)
+#' vector <- emb["buurt", ] - emb["rustige", ] + emb["restaurants", ]
+#' predict(model, vector, type = "nearest", top_n = 10)
+#' 
+#' vector <- emb["gastvrouw", ] - emb["gastvrij", ]
+#' predict(model, vector, type = "nearest", top_n = 5)
+#' 
+#' vectors <- emb[c("gastheer", "gastvrouw"), ]
+#' vectors <- rbind(vectors, avg = colMeans(vectors))
+#' predict(model, vectors, type = "nearest", top_n = 10)
+predict.word2vec <- function(object, newdata, type = c("nearest", "embedding"), top_n = 10L, ...){
     type <- match.arg(type)
+    top_n <- as.integer(top_n)
     if(type == "embedding"){
         x <- w2v_embedding(object$model, x = newdata)
     }else if(type == "nearest"){
         if(is.character(newdata)){
-            x <- lapply(newdata, FUN=function(x, ...){
-                w2v_nearest(object$model, x = x, ...)    
-            }, ...)
+            x <- lapply(newdata, FUN=function(x, top_n, ...){
+                w2v_nearest(object$model, x = x, top_n = top_n, ...)    
+            }, top_n = top_n, ...)
             names(x) <- newdata    
         }else if(is.matrix(newdata)){
-            x <- lapply(seq_len(nrow(newdata)), FUN=function(i, ...){
-                w2v_nearest_vector(object$model, x = newdata[i, ], ...)    
-            }, ...)
+            x <- lapply(seq_len(nrow(newdata)), FUN=function(i, top_n, ...){
+                w2v_nearest_vector(object$model, x = newdata[i, ], top_n = top_n, ...)    
+            }, top_n = top_n, ...)
             if(!is.null(rownames(newdata))){
                 names(x) <- rownames(newdata)    
             }
         }else if(is.numeric(newdata)){
-            x <- w2v_nearest_vector(object$model, x = newdata, ...)    
+            x <- w2v_nearest_vector(object$model, x = newdata, top_n = top_n, ...)    
         }
     }
     x
 }
 
 #' @export
-predict.w2v_trained <- function(object, newdata, type = c("nearest", "embedding"), ...){
-    predict.w2v(object = object, newdata = newdata, type = type, ...)
+predict.word2vec_trained <- function(object, newdata, type = c("nearest", "embedding"), ...){
+    predict.word2vec(object = object, newdata = newdata, type = type, ...)
 }
 
 
 
-#' @title Similarity between vectors as used in word2vec
-#' @description The similarity between vectors is defined as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+#' @title Similarity between word vectors as used in word2vec
+#' @description The similarity between word vectors is defined as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
 #' @param x a matrix with embeddings where the rownames of the matrix provide the label of the term
 #' @param y a matrix with embeddings where the rownames of the matrix provide the label of the term
 #' @param top_n integer indicating to return only the top n most similar terms from y for each row of x. 

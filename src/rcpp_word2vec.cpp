@@ -155,7 +155,7 @@ Rcpp::List w2v_train(std::string trainFile, std::string modelFile, std::string s
       Rcpp::Named("split_sents") = endOfSentenceChars
     )
   );
-  out.attr("class") = "w2v_trained";
+  out.attr("class") = "word2vec_trained";
   return out;
 }
 
@@ -172,7 +172,7 @@ Rcpp::List w2v_load_model(std::string file) {
     Rcpp::Named("dim") = model->vectorSize(),
     Rcpp::Named("vocabulary") = model->modelSize()
   );
-  out.attr("class") = "w2v";
+  out.attr("class") = "word2vec";
   return out;
 }
 

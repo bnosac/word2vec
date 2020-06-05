@@ -84,8 +84,10 @@ vocab <- summary(model, type = "vocabulary")
 emb <- as.matrix(model)
 vector <- emb["buurt", ] - emb["rustige", ] + emb["restaurants", ]
 predict(model, vector, type = "nearest", top_n = 10)
+
 vector <- emb["gastvrouw", ] - emb["gastvrij", ]
 predict(model, vector, type = "nearest", top_n = 5)
+
 vectors <- emb[c("gastheer", "gastvrouw"), ]
 vectors <- rbind(vectors, avg = colMeans(vectors))
 predict(model, vectors, type = "nearest", top_n = 10)
@@ -127,4 +129,7 @@ nn
 }
 \references{
 \url{https://github.com/maxoodf/word2vec}
+}
+\seealso{
+\code{\link{predict.word2vec}}, \code{\link{as.matrix.word2vec}}
 }

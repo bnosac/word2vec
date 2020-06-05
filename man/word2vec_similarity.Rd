@@ -2,7 +2,7 @@
 % Please edit documentation in R/word2vec.R
 \name{word2vec_similarity}
 \alias{word2vec_similarity}
-\title{Similarity between vectors as used in word2vec}
+\title{Similarity between word vectors as used in word2vec}
 \usage{
 word2vec_similarity(x, y, top_n = +Inf)
 }
@@ -23,7 +23,7 @@ indicating the similarity between the provided terms in \code{x} and \code{y}
 ordered from high to low similarity and keeping only the top_n most similar records.
 }
 \description{
-The similarity between vectors is defined as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+The similarity between word vectors is defined as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
 }
 \examples{
 x <- matrix(rnorm(6), nrow = 2, ncol = 3)
