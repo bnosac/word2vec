@@ -64,6 +64,29 @@
 #' \dontshow{
 #' file.remove(path)
 #' }
+#' 
+#' 
+#' ## 
+#' ## Example getting word embeddings 
+#' ##   which are different depending on the parts of speech tag
+#' ## Look to the help of the udpipe R package 
+#' ##   to get parts of speech tags on text
+#' ## 
+#' library(udpipe)
+#' data(brussels_reviews_anno, package = "udpipe")
+#' x <- subset(brussels_reviews_anno, language == "fr")
+#' x <- subset(x, grepl(xpos, pattern = paste(LETTERS, collapse = "|")))
+#' x$text <- sprintf("%s/%s", x$lemma, x$xpos)
+#' x <- subset(x, !is.na(lemma))
+#' x <- paste.data.frame(x, term = "text", group = "doc_id", collapse = " ")
+#' x <- x$text
+#' 
+#' model <- word2vec(x = x, dim = 15, iter = 20, split = c(" ", ".\n?!"))
+#' emb   <- as.matrix(model)
+#' nn    <- predict(model, c("cuisine/NN", "rencontrer/VB"), type = "nearest")
+#' nn
+#' nn    <- predict(model, c("accueillir/VBN", "accueillir/VBG"), type = "nearest")
+#' nn
 word2vec <- function(x,
                      type = c("cbow", "skip-gram"),
                      dim = 50, window = 5L, 
