@@ -207,7 +207,7 @@ as.matrix.word2vec_trained <- function(x, ...){
 #' }
 write.word2vec <- function(x, file, type = c("bin", "txt")){
     type <- match.arg(type)
-    stopifnot(inherits(x, "w2v_trained") || inherits(x, "w2v"))
+    stopifnot(inherits(x, "w2v_trained") || inherits(x, "w2v") || inherits(x, "word2vec_trained") || inherits(x, "word2vec"))
     if(type == "bin"){
         w2v_save_model(x$model, file)
     }else if(type == "txt"){
