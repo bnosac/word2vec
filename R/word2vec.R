@@ -283,3 +283,64 @@ predict.w2v <- function(object, newdata, type = c("nearest", "embedding"), ...){
 predict.w2v_trained <- function(object, newdata, type = c("nearest", "embedding"), ...){
     predict.w2v(object = object, newdata = newdata, type = type, ...)
 }
+
+
+
+#' @title Similarity between vectors as used in word2vec
+#' @description The similarity between vectors is defined as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+#' @param x a matrix with embeddings where the rownames of the matrix provide the label of the term
+#' @param y a matrix with embeddings where the rownames of the matrix provide the label of the term
+#' @param top_n integer indicating to return only the top n most similar terms from y for each row of x. 
+#' If \code{top_n} is supplied, a data.frame will be returned with only the highest similarities between x and y 
+#' instead of all pairwise similarities
+#' @return 
+#' By default, the function returns a similarity matrix between the rows of \code{x} and the rows of \code{y}. 
+#' The similarity between row i of \code{x} and row j of \code{y} is found in cell \code{[i, j]} of the returned similarity matrix.\cr
+#' If \code{top_n} is provided, the return value is a data.frame with columns term1, term2, similarity and rank 
+#' indicating the similarity between the provided terms in \code{x} and \code{y} 
+#' ordered from high to low similarity and keeping only the top_n most similar records.
+#' @export
+#' @seealso \code{\link{word2vec}}
+#' @examples 
+#' x <- matrix(rnorm(6), nrow = 2, ncol = 3)
+#' rownames(x) <- c("word1", "word2")
+#' y <- matrix(rnorm(15), nrow = 5, ncol = 3)
+#' rownames(y) <- c("term1", "term2", "term3", "term4", "term5")
+#' 
+#' word2vec_similarity(x, y)
+#' word2vec_similarity(x, y, top_n = 1)
+#' word2vec_similarity(x, y, top_n = 2)
+#' word2vec_similarity(x, y, top_n = +Inf)
+#' 
+#' ## Example with a word2vec model
+#' path  <- system.file(package = "word2vec", "models", "example.bin")
+#' model <- read.word2vec(path)
+#' emb <- as.matrix(model)
+#' 
+#' x <- emb[c("gastheer", "gastvrouw", "kamer"), ]
+#' y <- emb
+#' word2vec_similarity(x, x)
+#' word2vec_similarity(x, y, top_n = 3)
+#' predict(model, x, type = "nearest", top_n = 3)
+word2vec_similarity <- function(x, y, top_n = +Inf){
+    if (!is.matrix(x)) {
+        x <- matrix(x, nrow = 1)
+    }
+    if (!is.matrix(y)) {
+        y <- matrix(y, nrow = 1)
+    }
+    vectorsize <- ncol(x)
+    similarities <- tcrossprod(x, y)
+    similarities <- similarities / vectorsize
+    similarities[similarities < 0] <- 0
+    similarities <- sqrt(similarities)
+    if (!missing(top_n)) {
+        similarities <- as.data.frame.table(similarities, stringsAsFactors = FALSE)
+        colnames(similarities) <- c("term1", "term2", "similarity")
+        similarities <- similarities[order(factor(similarities$term1), similarities$similarity, decreasing = TRUE), ]
+        similarities$rank <- stats::ave(similarities$similarity, similarities$term1, FUN = seq_along)
+        similarities <- similarities[similarities$rank <= top_n, ]
+        rownames(similarities) <- NULL
+    }
+    similarities
+}

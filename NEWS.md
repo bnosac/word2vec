@@ -1,6 +1,7 @@
 ## CHANGES IN word2vec VERSION 0.2
 
 - Extended predict.w2v with nearest if you pass on a vector or matrix. This allows to perform word2vec analogies or extract other similarities.
+- Added word2vec_similarity
 
 ## CHANGES IN word2vec VERSION 0.1.0
 
