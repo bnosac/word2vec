@@ -1,3 +1,4 @@
+#include <Rcpp.h>
 /**
  * @file
  * @brief trainer class of word2vec model
@@ -68,7 +69,9 @@ namespace w2v {
         std::uniform_real_distribution<float> rndMatrixInitializer(-0.005f, 0.005f);
         _trainMatrix.resize(m_matrixSize);
         std::generate(_trainMatrix.begin(), _trainMatrix.end(), [&]() {
-            return rndMatrixInitializer(randomGenerator);
+            float v = (float)(Rcpp::runif(1, -0.005f, 0.005f)[0]);
+            return v;
+            //return rndMatrixInitializer(randomGenerator);
         });
 
         for (auto &i:m_threads) {

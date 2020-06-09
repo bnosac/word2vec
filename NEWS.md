@@ -5,6 +5,7 @@
 - Change classes returned by word2vec to 'word2vec_trained' and read.word2vec to 'word2vec'
 - Add detailed docs of predict.word2vec and as.matrix.word2vec
 - Added normalize option in read.word2vec usefull when wanting to extract the raw embedding (e.g. trained with other software)
+- Use Rcpp::runif as initialiser of embeddings instead of std::mt19937_64
 
 ## CHANGES IN word2vec VERSION 0.1.0
 
