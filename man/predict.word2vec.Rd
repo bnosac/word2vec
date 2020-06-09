@@ -4,7 +4,14 @@
 \alias{predict.word2vec}
 \title{Predict functionalities for a word2vec model}
 \usage{
-\method{predict}{word2vec}(object, newdata, type = c("nearest", "embedding"), top_n = 10L, ...)
+\method{predict}{word2vec}(
+  object,
+  newdata,
+  type = c("nearest", "embedding"),
+  top_n = 10L,
+  encoding = "UTF-8",
+  ...
+)
 }
 \arguments{
 \item{object}{a word2vec model as returned by \code{\link{word2vec}} or \code{\link{read.word2vec}}}
@@ -15,6 +22,8 @@ for type 'nearest', \code{newdata} should be a character vector of words or a ma
 \item{type}{either 'embedding' or 'nearest'. Defaults to 'nearest'.}
 
 \item{top_n}{show only the top n nearest neighbours. Defaults to 10.}
+
+\item{encoding}{set the encoding of the text elements to the specified encoding. Defaults to 'UTF-8'.}
 
 \item{...}{not used}
 }

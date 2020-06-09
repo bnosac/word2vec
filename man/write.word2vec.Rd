@@ -4,7 +4,7 @@
 \alias{write.word2vec}
 \title{Save a word2vec model to disk}
 \usage{
-write.word2vec(x, file, type = c("bin", "txt"))
+write.word2vec(x, file, type = c("bin", "txt"), encoding = "UTF-8")
 }
 \arguments{
 \item{x}{an object of class \code{w2v} or \code{w2v_trained} as returned by \code{\link{word2vec}}}
@@ -12,6 +12,8 @@ write.word2vec(x, file, type = c("bin", "txt"))
 \item{file}{the path to the file where to store the model}
 
 \item{type}{either 'bin' or 'txt' to write respectively the file as binary or as a text file. Defaults to 'bin'.}
+
+\item{encoding}{encoding to use when writing a file with type 'txt' to disk. Defaults to 'UTF-8'}
 }
 \value{
 a logical indicating if the save process succeeded

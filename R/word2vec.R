@@ -159,6 +159,7 @@ word2vec <- function(x,
 #' @title Get the word vectors of a word2vec model
 #' @description Get the word vectors of a word2vec model as a matrix.
 #' @param x a word2vec model as returned by \code{\link{word2vec}} or \code{\link{read.word2vec}}
+#' @param encoding set the encoding of the row names to the specified encoding. Defaults to 'UTF-8'.
 #' @param ... not used
 #' @return a matrix with the word vectors where the rownames are the words from the model vocabulary
 #' @export
@@ -169,15 +170,16 @@ word2vec <- function(x,
 #' model <- read.word2vec(path)
 #' 
 #' embedding <- as.matrix(model)
-as.matrix.word2vec <- function(x, ...){
+as.matrix.word2vec <- function(x, encoding='UTF-8', ...){
     words <- w2v_dictionary(x$model)
     x <- w2v_embedding(x$model, words)
+    Encoding(rownames(x)) <- encoding
     x 
 }
 
 
 #' @export
-as.matrix.word2vec_trained <- function(x, ...){
+as.matrix.word2vec_trained <- function(x, encoding='UTF-8', ...){
     as.matrix.word2vec(x)
 }
 
@@ -187,6 +189,7 @@ as.matrix.word2vec_trained <- function(x, ...){
 #' @param x an object of class \code{w2v} or \code{w2v_trained} as returned by \code{\link{word2vec}}
 #' @param file the path to the file where to store the model
 #' @param type either 'bin' or 'txt' to write respectively the file as binary or as a text file. Defaults to 'bin'.
+#' @param encoding encoding to use when writing a file with type 'txt' to disk. Defaults to 'UTF-8'
 #' @return a logical indicating if the save process succeeded
 #' @export
 #' @seealso \code{\link{word2vec}}
@@ -214,7 +217,7 @@ as.matrix.word2vec_trained <- function(x, ...){
 #' \dontshow{
 #' file.remove(path)
 #' }
-write.word2vec <- function(x, file, type = c("bin", "txt")){
+write.word2vec <- function(x, file, type = c("bin", "txt"), encoding = "UTF-8"){
     type <- match.arg(type)
     stopifnot(inherits(x, "w2v_trained") || inherits(x, "w2v") || inherits(x, "word2vec_trained") || inherits(x, "word2vec"))
     if(type == "bin"){
@@ -223,7 +226,7 @@ write.word2vec <- function(x, file, type = c("bin", "txt")){
         requireNamespace(package = "udpipe")
         wordvectors <- as.matrix(x)
         wv <- udpipe::as_word2vec(wordvectors)
-        f <- base::file(file, open = "wt", encoding = "UTF-8")
+        f <- base::file(file, open = "wt", encoding = encoding)
         cat(wv, file = f)
         close(f)
         file.exists(file)
@@ -264,10 +267,12 @@ read.word2vec <- function(file, normalize = TRUE){
 }
 
 #' @export
-summary.word2vec <- function(object, type = "vocabulary", ...){
+summary.word2vec <- function(object, type = "vocabulary", encoding = "UTF-8", ...){
     type <- match.arg(type)
     if(type == "vocabulary"){
-        w2v_dictionary(object$model)
+        x <- w2v_dictionary(object$model)
+        Encoding(x) <- encoding
+        x
     }else{
         stop("not implemented")
     }
@@ -291,6 +296,7 @@ summary.word2vec_trained <- function(object, type = "vocabulary", ...){
 #' for type 'nearest', \code{newdata} should be a character vector of words or a matrix in the embedding space
 #' @param type either 'embedding' or 'nearest'. Defaults to 'nearest'.
 #' @param top_n show only the top n nearest neighbours. Defaults to 10.
+#' @param encoding set the encoding of the text elements to the specified encoding. Defaults to 'UTF-8'. 
 #' @param ... not used
 #' @return depending on the type, you get a different result back:
 #' \itemize{
@@ -318,26 +324,33 @@ summary.word2vec_trained <- function(object, type = "vocabulary", ...){
 #' vectors <- emb[c("gastheer", "gastvrouw"), ]
 #' vectors <- rbind(vectors, avg = colMeans(vectors))
 #' predict(model, vectors, type = "nearest", top_n = 10)
-predict.word2vec <- function(object, newdata, type = c("nearest", "embedding"), top_n = 10L, ...){
+predict.word2vec <- function(object, newdata, type = c("nearest", "embedding"), top_n = 10L, encoding = "UTF-8", ...){
     type <- match.arg(type)
     top_n <- as.integer(top_n)
     if(type == "embedding"){
         x <- w2v_embedding(object$model, x = newdata)
+        Encoding(rownames(x)) <- encoding
     }else if(type == "nearest"){
         if(is.character(newdata)){
             x <- lapply(newdata, FUN=function(x, top_n, ...){
-                w2v_nearest(object$model, x = x, top_n = top_n, ...)    
+                data <- w2v_nearest(object$model, x = x, top_n = top_n, ...)    
+                Encoding(data$term1) <- encoding
+                Encoding(data$term2) <- encoding
+                data
             }, top_n = top_n, ...)
             names(x) <- newdata    
         }else if(is.matrix(newdata)){
             x <- lapply(seq_len(nrow(newdata)), FUN=function(i, top_n, ...){
-                w2v_nearest_vector(object$model, x = newdata[i, ], top_n = top_n, ...)    
+                data <- w2v_nearest_vector(object$model, x = newdata[i, ], top_n = top_n, ...)    
+                Encoding(data$term) <- encoding
+                data
             }, top_n = top_n, ...)
             if(!is.null(rownames(newdata))){
                 names(x) <- rownames(newdata)    
             }
         }else if(is.numeric(newdata)){
             x <- w2v_nearest_vector(object$model, x = newdata, top_n = top_n, ...)    
+            Encoding(x$term) <- encoding
         }
     }
     x

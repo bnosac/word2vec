@@ -34,6 +34,7 @@ x <- tolower(x$feedback)
 
 ```{r}
 library(word2vec)
+set.seed(123456)
 model <- word2vec(x = x, type = "cbow", dim = 15, iter = 20)
 embedding <- as.matrix(model)
 embedding <- predict(model, c("bus", "toilet"), type = "embedding")
@@ -41,26 +42,26 @@ lookslike <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
 lookslike
 $bus
  term1       term2 similarity rank
-   bus       lopen  0.7737458    1
-   bus     minuten  0.7378477    2
-   bus     centrum  0.7323325    3
-   bus loopafstand  0.7200720    4
-   bus       markt  0.7054080    5
+   bus       lopen  0.7737619    1
+   bus     minuten  0.7517364    2
+   bus     centrum  0.7500643    3
+   bus loopafstand  0.7020805    4
+   bus          te  0.6947225    5
 
 $toilet
   term1     term2 similarity rank
- toilet  voorzien  0.6782151    1
- toilet  gemakken  0.6778656    2
- toilet ingericht  0.6666461    3
- toilet    netjes  0.6460885    4
- toilet  badkamer  0.6415362    5
+ toilet    netjes  0.7118621    1
+ toilet ingericht  0.6691837    2
+ toilet    schoon  0.6650282    3
+ toilet  badkamer  0.6458700    4
+ toilet  voorzien  0.6441874    5
 ```
 
 - Save the model and read it back in and do something with it
 
 ```{r}
 write.word2vec(model, "mymodel.bin")
-model     <- read.word2vec("mymodel.bin")
+model     <- read.word2vec("mymodel.bin", standardize )
 terms     <- summary(model, "vocabulary")
 embedding <- as.matrix(model)
 ```

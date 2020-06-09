@@ -4,10 +4,12 @@
 \alias{as.matrix.word2vec}
 \title{Get the word vectors of a word2vec model}
 \usage{
-\method{as.matrix}{word2vec}(x, ...)
+\method{as.matrix}{word2vec}(x, encoding = "UTF-8", ...)
 }
 \arguments{
 \item{x}{a word2vec model as returned by \code{\link{word2vec}} or \code{\link{read.word2vec}}}
+
+\item{encoding}{set the encoding of the row names to the specified encoding. Defaults to 'UTF-8'.}
 
 \item{...}{not used}
 }
