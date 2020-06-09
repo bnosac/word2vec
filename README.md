@@ -61,7 +61,7 @@ $toilet
 
 ```{r}
 write.word2vec(model, "mymodel.bin")
-model     <- read.word2vec("mymodel.bin", standardize )
+model     <- read.word2vec("mymodel.bin", normalize = FALSE)
 terms     <- summary(model, "vocabulary")
 embedding <- as.matrix(model)
 ```
