@@ -8,7 +8,7 @@ word2vec(
   x,
   type = c("cbow", "skip-gram"),
   dim = 50,
-  window = 5L,
+  window = ifelse(type == "cbow", 5L, 10L),
   iter = 5L,
   lr = 0.05,
   hs = FALSE,
@@ -60,6 +60,16 @@ an object of class \code{w2v_trained} which is a list with elements
 }
 \description{
 Construct a word2vec model on text. The algorithm is explained at \url{https://arxiv.org/pdf/1310.4546.pdf}
+}
+\details{
+Some advice on the optimal set of parameters to use for training as defined by Mikolov et al.
+\itemize{
+\item{argument type: skip-gram (slower, better for infrequent words) vs cbow (fast)}
+\item{argument hs: the training algorithm: hierarchical softmax (better for infrequent words) vs negative sampling (better for frequent words, better with low dimensional vectors)}
+\item{argument dim: dimensionality of the word vectors: usually more is better, but not always}
+\item{argument window: for skip-gram usually around 10, for cbow around 5}
+\item{argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)}
+}
 }
 \examples{
 library(udpipe)
@@ -128,7 +138,7 @@ nn    <- predict(model, c("accueillir/VBN", "accueillir/VBG"), type = "nearest")
 nn
 }
 \references{
-\url{https://github.com/maxoodf/word2vec}
+\url{https://github.com/maxoodf/word2vec}, \url{https://arxiv.org/pdf/1310.4546.pdf}
 }
 \seealso{
 \code{\link{predict.word2vec}}, \code{\link{as.matrix.word2vec}}

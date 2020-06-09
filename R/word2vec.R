@@ -22,7 +22,16 @@
 #' \item{error_log: the error log in case training failed}
 #' \item{control: as list of the training arguments used, namely min_count, dim, window, iter, lr, skipgram, hs, negative, sample, split_words, split_sents, expTableSize and expValueMax}
 #' }
-#' @references \url{https://github.com/maxoodf/word2vec}
+#' @references \url{https://github.com/maxoodf/word2vec}, \url{https://arxiv.org/pdf/1310.4546.pdf}
+#' @details 
+#' Some advice on the optimal set of parameters to use for training as defined by Mikolov et al.
+#' \itemize{
+#' \item{argument type: skip-gram (slower, better for infrequent words) vs cbow (fast)}
+#' \item{argument hs: the training algorithm: hierarchical softmax (better for infrequent words) vs negative sampling (better for frequent words, better with low dimensional vectors)}
+#' \item{argument dim: dimensionality of the word vectors: usually more is better, but not always}
+#' \item{argument window: for skip-gram usually around 10, for cbow around 5}
+#' \item{argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)}
+#' }
 #' @seealso \code{\link{predict.word2vec}}, \code{\link{as.matrix.word2vec}}
 #' @export
 #' @examples
@@ -92,7 +101,7 @@
 #' nn
 word2vec <- function(x,
                      type = c("cbow", "skip-gram"),
-                     dim = 50, window = 5L, 
+                     dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
                      iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
                      split = c(" \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r", 
                                ".\n?!"),
@@ -224,6 +233,7 @@ write.word2vec <- function(x, file, type = c("bin", "txt")){
 #' @title Read a binary word2vec model from disk
 #' @description Read a binary word2vec model from disk
 #' @param file the path to the model file
+#' @param normalize logical indicating to normalize the embeddings. Defaults to TRUE. 
 #' @return an object of class w2v which is a list with elements
 #' \itemize{
 #' \item{model: a Rcpp pointer to the model}
@@ -248,9 +258,9 @@ write.word2vec <- function(x, file, type = c("bin", "txt")){
 #' vectors <- emb[c("gastheer", "gastvrouw"), ]
 #' vectors <- rbind(vectors, avg = colMeans(vectors))
 #' predict(model, vectors, type = "nearest", top_n = 10)
-read.word2vec <- function(file){
+read.word2vec <- function(file, normalize = TRUE){
     stopifnot(file.exists(file))
-    w2v_load_model(file)
+    w2v_load_model(file, normalize = normalize)
 }
 
 #' @export
