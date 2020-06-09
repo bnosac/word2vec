@@ -153,7 +153,7 @@ namespace w2v {
         /// pure virtual method to save model of a derived class
         virtual bool save(const std::string &_modelFile) const noexcept = 0;
         /// pure virtual method to load model of a derived class
-        virtual bool load(const std::string &_modelFile) noexcept = 0;
+        virtual bool load(const std::string &_modelFile, bool normalize = true) noexcept = 0;
 
         /**
          * Vector access by key value
@@ -280,7 +280,7 @@ namespace w2v {
         /// saves word vectors to file with _modelFile name
         bool save(const std::string &_modelFile) const noexcept override;
         /// loads word vectors from file with _modelFile name
-        bool load(const std::string &_modelFile) noexcept override;
+        bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
     };
 
     /**
@@ -316,7 +316,7 @@ namespace w2v {
         /// saves document vectors to file with _modelFile name
         bool save(const std::string &_modelFile) const noexcept override;
         /// loads document vectors from file with _modelFile name
-        bool load(const std::string &_modelFile) noexcept override;
+        bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
     };
 
     /**

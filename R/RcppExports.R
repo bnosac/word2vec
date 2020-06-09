@@ -5,8 +5,8 @@ w2v_train <- function(trainFile, modelFile, stopWordsFile, minWordFreq = 5L, siz
     .Call('_word2vec_w2v_train', PACKAGE = 'word2vec', trainFile, modelFile, stopWordsFile, minWordFreq, size, window, expTableSize, expValueMax, sample, withHS, negative, threads, iterations, alpha, withSG, wordDelimiterChars, endOfSentenceChars, verbose)
 }
 
-w2v_load_model <- function(file) {
-    .Call('_word2vec_w2v_load_model', PACKAGE = 'word2vec', file)
+w2v_load_model <- function(file, normalize = TRUE) {
+    .Call('_word2vec_w2v_load_model', PACKAGE = 'word2vec', file, normalize)
 }
 
 w2v_save_model <- function(ptr, file) {

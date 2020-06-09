@@ -161,9 +161,9 @@ Rcpp::List w2v_train(std::string trainFile, std::string modelFile, std::string s
 
 
 // [[Rcpp::export]]
-Rcpp::List w2v_load_model(std::string file) {
+Rcpp::List w2v_load_model(std::string file, bool normalize = true) {
   Rcpp::XPtr<w2v::w2vModel_t> model(new w2v::w2vModel_t(), true);
-  if (!model->load(file)) {
+  if (!model->load(file, normalize = normalize)) {
     Rcpp::stop(model->errMsg());
   }
   Rcpp::List out = Rcpp::List::create(

@@ -34,13 +34,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // w2v_load_model
-Rcpp::List w2v_load_model(std::string file);
-RcppExport SEXP _word2vec_w2v_load_model(SEXP fileSEXP) {
+Rcpp::List w2v_load_model(std::string file, bool normalize);
+RcppExport SEXP _word2vec_w2v_load_model(SEXP fileSEXP, SEXP normalizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type file(fileSEXP);
-    rcpp_result_gen = Rcpp::wrap(w2v_load_model(file));
+    Rcpp::traits::input_parameter< bool >::type normalize(normalizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(w2v_load_model(file, normalize));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -110,7 +111,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_word2vec_w2v_train", (DL_FUNC) &_word2vec_w2v_train, 18},
-    {"_word2vec_w2v_load_model", (DL_FUNC) &_word2vec_w2v_load_model, 1},
+    {"_word2vec_w2v_load_model", (DL_FUNC) &_word2vec_w2v_load_model, 2},
     {"_word2vec_w2v_save_model", (DL_FUNC) &_word2vec_w2v_save_model, 2},
     {"_word2vec_w2v_dictionary", (DL_FUNC) &_word2vec_w2v_dictionary, 1},
     {"_word2vec_w2v_embedding", (DL_FUNC) &_word2vec_w2v_embedding, 2},

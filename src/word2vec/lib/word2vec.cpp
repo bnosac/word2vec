@@ -119,7 +119,7 @@ namespace w2v {
         return false;
     }
 
-    bool w2vModel_t::load(const std::string &_modelFile) noexcept {
+    bool w2vModel_t::load(const std::string &_modelFile, bool normalize) noexcept {
         try {
             m_map.clear();
 
@@ -181,18 +181,20 @@ namespace w2v {
                 v.resize(m_vectorSize);
                 std::memcpy(v.data(), input.data() + offset, m_vectorSize * sizeof(float));
                 offset += m_vectorSize * sizeof(float); // vector size
-
-                // normalize vector
-                float med = 0.0f;
-                for (auto const &j:v) {
-                    med += j * j;
-                }
-                if (med <= 0.0f) {
-                    throw std::runtime_error("failed to normalize vectors");
-                }
-                med = std::sqrt(med / v.size());
-                for (auto &j:v) {
-                    j /= med;
+                
+                if(normalize){
+                    // normalize vector
+                    float med = 0.0f;
+                    for (auto const &j:v) {
+                        med += j * j;
+                    }
+                    if (med <= 0.0f) {
+                        throw std::runtime_error("failed to normalize vectors");
+                    }
+                    med = std::sqrt(med / v.size());
+                    for (auto &j:v) {
+                        j /= med;
+                    }
                 }
             }
 
@@ -241,7 +243,7 @@ namespace w2v {
         return false;
     }
 
-    bool d2vModel_t::load(const std::string &_modelFile) noexcept {
+    bool d2vModel_t::load(const std::string &_modelFile, bool normalize) noexcept {
         try {
             m_map.clear();
 

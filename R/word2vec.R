@@ -233,7 +233,7 @@ write.word2vec <- function(x, file, type = c("bin", "txt")){
 #' @title Read a binary word2vec model from disk
 #' @description Read a binary word2vec model from disk
 #' @param file the path to the model file
-#' @param normalize logical indicating to normalize the embeddings. Defaults to TRUE. 
+#' @param normalize logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to TRUE. 
 #' @return an object of class w2v which is a list with elements
 #' \itemize{
 #' \item{model: a Rcpp pointer to the model}
