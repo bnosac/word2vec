@@ -263,7 +263,25 @@ write.word2vec <- function(x, file, type = c("bin", "txt"), encoding = "UTF-8"){
 #' predict(model, vectors, type = "nearest", top_n = 10)
 read.word2vec <- function(file, normalize = TRUE){
     stopifnot(file.exists(file))
-    w2v_load_model(file, normalize = normalize)
+    w2v_load_model(file, normalize = normalize)    
+}
+
+
+#' @title Read word vectors from a word2vec model from disk
+#' @description Read word vectors from a word2vec model from disk
+#' @param file the path to the model file
+#' @param normalize logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to TRUE. 
+#' @param n integer, indicating to limit the number of words to read in. Defaults to reading all words.
+#' @return a matrix with the embeddings of the words, which are in UTF-8 encoding
+#' @export
+#' @examples
+#' path  <- system.file(package = "word2vec", "models", "example.bin")
+#' embed <- read.wordvectors(path, n = 10)
+#' embed <- read.wordvectors(path)
+read.wordvectors <- function(file, normalize = TRUE, n = .Machine$integer.max){
+    x <- w2v_read_binary(file, normalize = normalize, n = as.integer(n))
+    Encoding(rownames(x)) <- "UTF-8"
+    x
 }
 
 #' @export

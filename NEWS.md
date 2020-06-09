@@ -7,6 +7,7 @@
 - Added normalize option in read.word2vec usefull when wanting to extract the raw embedding (e.g. trained with other software)
 - Use Rcpp::runif as initialiser of embeddings instead of std::mt19937_64
 - Functionalities default usage assumes UTF-8 encoding
+- Added read.wordvectors
 
 ## CHANGES IN word2vec VERSION 0.1.0
 
