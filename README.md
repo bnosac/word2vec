@@ -66,6 +66,39 @@ terms     <- summary(model, "vocabulary")
 embedding <- as.matrix(model)
 ```
 
+## Visualise the embeddings
+
+- Using another example, getting embeddings of words together with parts of speech tag
+
+```
+library(udpipe)
+data(brussels_reviews_anno, package = "udpipe")
+x <- subset(brussels_reviews_anno, language == "fr")
+x <- subset(x, grepl(xpos, pattern = "A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z"))
+x$text <- sprintf("%s//%s", x$lemma, x$xpos)
+x <- subset(x, !is.na(lemma))
+x <- paste.data.frame(x, term = "text", group = "doc_id", collapse = " ")
+
+model     <- word2vec(x = x$text, dim = 15, iter = 20, split = c(" ", ".\n?!"))
+embedding <- as.matrix(model)
+```
+
+- Perform dimension reduction + make interactive plot of only the adjectives
+
+```{r}
+library(uwot)
+viz <- umap(embedding, n_neighbors = 10, n_threads = 2)
+
+library(plotly)
+df  <- data.frame(word = gsub("//.+", "", rownames(embedding)), 
+                  pos = gsub(".+//", "", rownames(embedding)), 
+                  x = viz[, 1], y = viz[, 2], 
+                  stringsAsFactors = FALSE)
+df  <- subset(df, pos %in% c("JJ"))
+plot_ly(df, x = ~x, y = ~y, type = "scatter", mode = 'text', text = ~word, 
+        textfont = list(family = "sans serif", size = 14))
+```
+
 ## Pretrained models
 
 - Pretrained models are available for English at https://github.com/maxoodf/word2vec#basic-usage
@@ -153,6 +186,7 @@ predict(model, newdata = wv, type = "nearest", top_n = 3)
   purple  0.9520039    2
  colored  0.9480994    3
 ```
+
 
 ## Support in text mining
 
