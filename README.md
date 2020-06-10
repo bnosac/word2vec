@@ -110,8 +110,9 @@ plot_ly(df, x = ~x, y = ~y, type = "scatter", mode = 'text', text = ~word)
 
 ## Pretrained models
 
-- Pretrained models are available for English at https://github.com/maxoodf/word2vec#basic-usage
-- **Note that external models not trained and saved with this R package, you need to set normalize=TRUE. This holds for models e.g. trained with Gensim or the models made available at sentencepiece**
+- Note that the framework is compatible with theh original word2vec model implementation. In order to use external models which are not trained and saved with this R package, you need to set normalize=TRUE in read.word2vec. This holds for models e.g. trained with gensim or the models made available through R package sentencepiece
+- Example below using a pretrained model available for English at https://github.com/maxoodf/word2vec#basic-usage
+
 
 ```{r}
 library(word2vec)
