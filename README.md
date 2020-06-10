@@ -98,7 +98,7 @@ df  <- data.frame(word = gsub("//.+", "", rownames(embedding)),
                   xpos = gsub(".+//", "", rownames(embedding)), 
                   x = viz[, 1], y = viz[, 2], 
                   stringsAsFactors = FALSE)
-df  <- subset(df, xpos %in% c("NN"))
+df  <- subset(df, xpos %in% c("JJ"))
 ggplot(df, aes(x = x, y = y, label = word)) + 
   geom_text_repel() + theme_void() + 
   labs(title = "word2vec - adjectives in 2D using UMAP")
