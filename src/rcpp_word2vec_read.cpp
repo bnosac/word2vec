@@ -55,7 +55,7 @@ Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize,
         }
         Rcpp::NumericMatrix embedding(m_mapSize, m_vectorSize);
         Rcpp::StringVector embedding_words(m_mapSize);
-        std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
+        //std::fill(embedding.begin(), embedding.end(), Rcpp::NumericVector::get_na());
         
         // get pairs of word and vector
         offset++; // skip last '\n' char
