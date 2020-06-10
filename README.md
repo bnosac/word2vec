@@ -34,34 +34,34 @@ x <- tolower(x$feedback)
 
 ```{r}
 library(word2vec)
-set.seed(123456)
+set.seed(123456789)
 model <- word2vec(x = x, type = "cbow", dim = 15, iter = 20)
 embedding <- as.matrix(model)
 embedding <- predict(model, c("bus", "toilet"), type = "embedding")
 lookslike <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
 lookslike
 $bus
- term1       term2 similarity rank
-   bus       lopen  0.7737619    1
-   bus     minuten  0.7517364    2
-   bus     centrum  0.7500643    3
-   bus loopafstand  0.7020805    4
-   bus          te  0.6947225    5
+ term1  term2 similarity rank
+   bus   voet  0.9891888    1
+   bus gratis  0.9886125    2
+   bus   tram  0.9885917    3
+   bus    ben  0.9844405    4
+   bus   auto  0.9780166    5
 
 $toilet
   term1     term2 similarity rank
- toilet    netjes  0.7118621    1
- toilet ingericht  0.6691837    2
- toilet    schoon  0.6650282    3
- toilet  badkamer  0.6458700    4
- toilet  voorzien  0.6441874    5
+ toilet  koelkast  0.9856260    1
+ toilet    douche  0.9830786    2
+ toilet      wifi  0.9779336    3
+ toilet voldoende  0.9723337    4
+ toilet    werkte  0.9677669    5
 ```
 
 - Save the model and read it back in and do something with it
 
 ```{r}
 write.word2vec(model, "mymodel.bin")
-model     <- read.word2vec("mymodel.bin", normalize = FALSE)
+model     <- read.word2vec("mymodel.bin")
 terms     <- summary(model, "vocabulary")
 embedding <- as.matrix(model)
 ```
@@ -111,10 +111,11 @@ plot_ly(df, x = ~x, y = ~y, type = "scatter", mode = 'text', text = ~word)
 ## Pretrained models
 
 - Pretrained models are available for English at https://github.com/maxoodf/word2vec#basic-usage
+- **Note that external models not trained and saved with this R package, you need to set normalize=TRUE. This holds for models e.g. trained with Gensim or the models made available at sentencepiece**
 
 ```{r}
 library(word2vec)
-model <- read.word2vec(file = "cb_ns_500_10.w2v")
+model <- read.word2vec(file = "cb_ns_500_10.w2v", normalize = TRUE)
 ```
 
 ### Examples on word similarities, classical analogies and embedding similarities

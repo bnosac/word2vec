@@ -13,6 +13,7 @@
 #' @param split a character vector of length 2 where the first element indicates how to split words and the second element indicates how to split sentences in \code{x}
 #' @param stopwords a character vector of stopwords to exclude from training 
 #' @param threads number of CPU threads to use. Defaults to 1.
+#' @param ... further arguments passed on to the C++ function \code{w2v_train} - for expert use only
 #' @return an object of class \code{w2v_trained} which is a list with elements 
 #' \itemize{
 #' \item{model: a Rcpp pointer to the model}
@@ -106,7 +107,8 @@ word2vec <- function(x,
                      split = c(" \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r", 
                                ".\n?!"),
                      stopwords = character(),
-                     threads = 1L){
+                     threads = 1L, 
+                     ...){
     type <- match.arg(type)
     stopw <- stopwords
     model <- file.path(tempdir(), "w2v.bin")
@@ -130,14 +132,14 @@ word2vec <- function(x,
     }
     
     
-    expTableSize <- 1000L
-    expValueMax <- 6L
+    #expTableSize <- 1000L
+    #expValueMax <- 6L
+    #expTableSize <- as.integer(expTableSize)
+    #expValueMax <- as.integer(expValueMax)
     min_count <- as.integer(min_count)
     dim <- as.integer(dim)
     window <- as.integer(window)
     iter <- as.integer(iter)
-    expTableSize <- as.integer(expTableSize)
-    expValueMax <- as.integer(expValueMax)
     sample <- as.numeric(sample)
     hs <- as.logical(hs)
     negative <- as.integer(negative)
@@ -148,9 +150,9 @@ word2vec <- function(x,
     split <- as.character(split)
     model <- w2v_train(trainFile = file_train, modelFile = model, stopWordsFile = file_stopwords,
                        minWordFreq = min_count,
-                       size = dim, window = window, expTableSize = expTableSize, expValueMax = expValueMax, 
+                       size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
                        sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
-                       alpha = lr, withSG = skipgram, wordDelimiterChars = split[1], endOfSentenceChars = split[2])
+                       alpha = lr, withSG = skipgram, wordDelimiterChars = split[1], endOfSentenceChars = split[2], ...)
     model$data$stopwords <- stopwords
     model
 }
@@ -236,7 +238,7 @@ write.word2vec <- function(x, file, type = c("bin", "txt"), encoding = "UTF-8"){
 #' @title Read a binary word2vec model from disk
 #' @description Read a binary word2vec model from disk
 #' @param file the path to the model file
-#' @param normalize logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to TRUE. 
+#' @param normalize logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to FALSE. 
 #' @return an object of class w2v which is a list with elements
 #' \itemize{
 #' \item{model: a Rcpp pointer to the model}
@@ -261,7 +263,7 @@ write.word2vec <- function(x, file, type = c("bin", "txt"), encoding = "UTF-8"){
 #' vectors <- emb[c("gastheer", "gastvrouw"), ]
 #' vectors <- rbind(vectors, avg = colMeans(vectors))
 #' predict(model, vectors, type = "nearest", top_n = 10)
-read.word2vec <- function(file, normalize = TRUE){
+read.word2vec <- function(file, normalize = FALSE){
     stopifnot(file.exists(file))
     w2v_load_model(file, normalize = normalize)    
 }

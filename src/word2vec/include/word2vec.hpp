@@ -154,7 +154,7 @@ namespace w2v {
         virtual bool save(const std::string &_modelFile) const noexcept = 0;
         /// pure virtual method to load model of a derived class
         virtual bool load(const std::string &_modelFile, bool normalize = true) noexcept = 0;
-
+        
         /**
          * Vector access by key value
          * @param _key key value uniquely identifying vector in model
@@ -281,6 +281,26 @@ namespace w2v {
         bool save(const std::string &_modelFile) const noexcept override;
         /// loads word vectors from file with _modelFile name
         bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
+        /**
+         * Normalise vectors
+         */
+        inline void normalize() {
+            for(auto &kv : m_map) {
+                // normalize vector
+                auto &v = kv.second;
+                float med = 0.0f;
+                for (auto const &j:v) {
+                    med += j * j;
+                }
+                if (med <= 0.0f) {
+                    throw std::runtime_error("failed to normalize vectors");
+                }
+                med = std::sqrt(med / v.size());
+                for (auto &j:v) {
+                    j /= med;
+                }
+            } 
+        }
     };
 
     /**

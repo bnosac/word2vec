@@ -4,12 +4,12 @@
 \alias{read.word2vec}
 \title{Read a binary word2vec model from disk}
 \usage{
-read.word2vec(file, normalize = TRUE)
+read.word2vec(file, normalize = FALSE)
 }
 \arguments{
 \item{file}{the path to the model file}
 
-\item{normalize}{logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to TRUE.}
+\item{normalize}{logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to FALSE.}
 }
 \value{
 an object of class w2v which is a list with elements

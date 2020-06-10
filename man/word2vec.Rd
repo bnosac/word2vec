@@ -17,7 +17,8 @@ word2vec(
   min_count = 5L,
   split = c(" \\n,.-!?:;/\\"#$\%&'()*+<=>@[]\\\\^_`{|}~\\t\\v\\f\\r", ".\\n?!"),
   stopwords = character(),
-  threads = 1L
+  threads = 1L,
+  ...
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ word2vec(
 \item{stopwords}{a character vector of stopwords to exclude from training}
 
 \item{threads}{number of CPU threads to use. Defaults to 1.}
+
+\item{...}{further arguments passed on to the C++ function \code{w2v_train} - for expert use only}
 }
 \value{
 an object of class \code{w2v_trained} which is a list with elements 

@@ -24,7 +24,8 @@ Rcpp::List w2v_train(std::string trainFile, std::string modelFile, std::string s
                      bool withSG = false,
                      std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r",
                      std::string endOfSentenceChars = ".\n?!",
-                     bool verbose = false) {
+                     bool verbose = false,
+                     bool normalize = true) {
   
   
   /*
@@ -128,6 +129,15 @@ Rcpp::List w2v_train(std::string trainFile, std::string modelFile, std::string s
     Rcpp::Rcout << "Training failed: " << model->errMsg() << std::endl;
     success = false;
   }
+  // NORMALISE UPFRONT - DIFFERENT THAN ORIGINAL CODE 
+  // - original code dumps data to disk, next imports it and during import normalisation happens after which we can do nearest calculations
+  // - the R wrapper only writes to disk at request so we need to normalise upfront in order to do directly nearest calculations
+  if(normalize){
+    //Rcpp::Rcout << "Finished training: finalising with embedding normalisation" << std::endl;
+    model->normalize();
+  }
+  
+  // Return model + model information
   Rcpp::List out = Rcpp::List::create(
     Rcpp::Named("model") = model,
     Rcpp::Named("data") = Rcpp::List::create(
