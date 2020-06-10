@@ -68,35 +68,44 @@ embedding <- as.matrix(model)
 
 ## Visualise the embeddings
 
-- Using another example, getting embeddings of words together with parts of speech tag
+![](tools/example-viz.png)
 
-```
+- Using another example, we get the embeddings of words together with parts of speech tag (Look to the help of the udpipe R package to easily get parts of speech tags on text)
+
+```{r}
 library(udpipe)
 data(brussels_reviews_anno, package = "udpipe")
-x <- subset(brussels_reviews_anno, language == "fr")
-x <- subset(x, grepl(xpos, pattern = "A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z"))
+x <- subset(brussels_reviews_anno, language == "fr" & !is.na(lemma) & nchar(lemma) > 1)
+x <- subset(x, xpos %in% c("NN", "IN", "RB", "VB", "DT", "JJ", "PRP", "CC",
+                           "VBN", "NNP", "NNS", "PRP$", "CD", "WP", "VBG", "UH", "SYM"))
 x$text <- sprintf("%s//%s", x$lemma, x$xpos)
-x <- subset(x, !is.na(lemma))
 x <- paste.data.frame(x, term = "text", group = "doc_id", collapse = " ")
 
 model     <- word2vec(x = x$text, dim = 15, iter = 20, split = c(" ", ".\n?!"))
 embedding <- as.matrix(model)
 ```
 
-- Perform dimension reduction + make interactive plot of only the adjectives
+- Perform dimension reduction using UMAP + make interactive plot of only the adjectives for example
 
 ```{r}
 library(uwot)
-viz <- umap(embedding, n_neighbors = 10, n_threads = 2)
+viz <- umap(embedding, n_neighbors = 15, n_threads = 2)
 
-library(plotly)
+## Static plot
+library(ggplot2)
+library(ggrepel)
 df  <- data.frame(word = gsub("//.+", "", rownames(embedding)), 
-                  pos = gsub(".+//", "", rownames(embedding)), 
+                  xpos = gsub(".+//", "", rownames(embedding)), 
                   x = viz[, 1], y = viz[, 2], 
                   stringsAsFactors = FALSE)
-df  <- subset(df, pos %in% c("JJ"))
-plot_ly(df, x = ~x, y = ~y, type = "scatter", mode = 'text', text = ~word, 
-        textfont = list(family = "sans serif", size = 14))
+df  <- subset(df, xpos %in% c("NN"))
+ggplot(df, aes(x = x, y = y, label = word)) + 
+  geom_text_repel() + theme_void() + 
+  labs(title = "word2vec - adjectives in 2D using UMAP")
+
+## Interactive plot
+library(plotly)
+plot_ly(df, x = ~x, y = ~y, type = "scatter", mode = 'text', text = ~word)
 ```
 
 ## Pretrained models
