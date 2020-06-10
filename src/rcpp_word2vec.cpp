@@ -246,7 +246,8 @@ Rcpp::DataFrame w2v_nearest(SEXP ptr,
     Rcpp::Named("term1") = x,
     Rcpp::Named("term2") = keys,
     Rcpp::Named("similarity") = distance,
-    Rcpp::Named("rank") = rank
+    Rcpp::Named("rank") = rank,
+    Rcpp::Named("stringsAsFactors") = false
   );
   return out;
 }
@@ -276,7 +277,8 @@ Rcpp::List w2v_nearest_vector(SEXP ptr,
   Rcpp::DataFrame out = Rcpp::DataFrame::create(
     Rcpp::Named("term") = keys,
     Rcpp::Named("similarity") = distance,
-    Rcpp::Named("rank") = rank
+    Rcpp::Named("rank") = rank,
+    Rcpp::Named("stringsAsFactors") = false
   );
   return out;
 }

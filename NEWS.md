@@ -6,7 +6,7 @@
 - Add detailed docs of predict.word2vec and as.matrix.word2vec
 - Added normalize option in read.word2vec usefull when wanting to extract the raw embedding (e.g. trained with other software)
 - Use Rcpp::runif as initialiser of embeddings instead of std::mt19937_64
-- Functionalities default usage assumes UTF-8 encoding
+- Functionalities default usage assumes UTF-8 encoding and predict.w2v now returns character text instead of factors
 - Added read.wordvectors
 
 ## CHANGES IN word2vec VERSION 0.1.0
