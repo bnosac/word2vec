@@ -293,11 +293,15 @@ read.wordvectors <- function(file, type = c("bin", "txt"), n = .Machine$integer.
         Encoding(rownames(x)) <- encoding
         x    
     }else if(type == "txt"){
+        if(n < .Machine$integer.max){
+            n <- n + 1L
+        }
         x <- readLines(file, skipNul = TRUE, encoding = encoding, n = n)
         size <- x[1]
         size <- as.numeric(unlist(strsplit(size, " ")))
         x <- x[-1]
         x <- strsplit(x, " ")
+        size[1] <- length(x)
         token <- sapply(x, FUN=function(x) x[1])
         emb <- lapply(x, FUN=function(x) as.numeric(x[-1]))
         embedding <- matrix(data = unlist(emb), nrow = size[1], ncol = size[2], dimnames = list(token), byrow = TRUE)
@@ -306,7 +310,6 @@ read.wordvectors <- function(file, type = c("bin", "txt"), n = .Machine$integer.
         }
         embedding
     }
-    
 }
 
 #' @export
