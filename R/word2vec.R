@@ -157,7 +157,7 @@ word2vec <- function(x,
 
 
 #' @title Get the word vectors of a word2vec model
-#' @description Get the word vectors of a word2vec model as a matrix.
+#' @description Get the word vectors of a word2vec model as a dense matrix.
 #' @param x a word2vec model as returned by \code{\link{word2vec}} or \code{\link{read.word2vec}}
 #' @param encoding set the encoding of the row names to the specified encoding. Defaults to 'UTF-8'.
 #' @param ... not used
@@ -219,8 +219,8 @@ as.matrix.word2vec_trained <- function(x, encoding='UTF-8', ...){
 #' }
 write.word2vec <- function(x, file, type = c("bin", "txt"), encoding = "UTF-8"){
     type <- match.arg(type)
-    stopifnot(inherits(x, "w2v_trained") || inherits(x, "w2v") || inherits(x, "word2vec_trained") || inherits(x, "word2vec"))
     if(type == "bin"){
+        stopifnot(inherits(x, "w2v_trained") || inherits(x, "w2v") || inherits(x, "word2vec_trained") || inherits(x, "word2vec"))
         w2v_save_model(x$model, file)
     }else if(type == "txt"){
         requireNamespace(package = "udpipe")
@@ -268,20 +268,45 @@ read.word2vec <- function(file, normalize = TRUE){
 
 
 #' @title Read word vectors from a word2vec model from disk
-#' @description Read word vectors from a word2vec model from disk
+#' @description Read word vectors from a word2vec model from disk into a dense matrix
 #' @param file the path to the model file
-#' @param normalize logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to TRUE. 
+#' @param type either 'bin' or 'txt' indicating the \code{file} is a binary file or a text file
 #' @param n integer, indicating to limit the number of words to read in. Defaults to reading all words.
-#' @return a matrix with the embeddings of the words, which are in UTF-8 encoding
+#' @param normalize logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to FALSE. 
+#' @param encoding encoding to be assumed for the words. Defaults to 'UTF-8'
+#' @return A matrix with the embeddings of the words. The rownames of the matrix are the words which are by default set to UTF-8 encoding.
 #' @export
 #' @examples
 #' path  <- system.file(package = "word2vec", "models", "example.bin")
-#' embed <- read.wordvectors(path, n = 10)
-#' embed <- read.wordvectors(path)
-read.wordvectors <- function(file, normalize = TRUE, n = .Machine$integer.max){
-    x <- w2v_read_binary(file, normalize = normalize, n = as.integer(n))
-    Encoding(rownames(x)) <- "UTF-8"
-    x
+#' embed <- read.wordvectors(path, type = "bin", n = 10)
+#' embed <- read.wordvectors(path, type = "bin", n = 10, normalize = TRUE)
+#' embed <- read.wordvectors(path, type = "bin")
+#' 
+#' path  <- system.file(package = "word2vec", "models", "example.txt")
+#' embed <- read.wordvectors(path, type = "txt", n = 10)
+#' embed <- read.wordvectors(path, type = "txt", n = 10, normalize = TRUE)
+#' embed <- read.wordvectors(path, type = "txt")
+read.wordvectors <- function(file, type = c("bin", "txt"), n = .Machine$integer.max, normalize = FALSE, encoding = "UTF-8"){
+    type <- match.arg(type)
+    if(type == "bin"){
+        x <- w2v_read_binary(file, normalize = normalize, n = as.integer(n))
+        Encoding(rownames(x)) <- encoding
+        x    
+    }else if(type == "txt"){
+        x <- readLines(file, skipNul = TRUE, encoding = encoding, n = n)
+        size <- x[1]
+        size <- as.numeric(unlist(strsplit(size, " ")))
+        x <- x[-1]
+        x <- strsplit(x, " ")
+        token <- sapply(x, FUN=function(x) x[1])
+        emb <- lapply(x, FUN=function(x) as.numeric(x[-1]))
+        embedding <- matrix(data = unlist(emb), nrow = size[1], ncol = size[2], dimnames = list(token), byrow = TRUE)
+        if(normalize){
+            embedding <- t(apply(embedding, MARGIN=1, FUN=function(x) x / sqrt(sum(x * x) / length(x))))
+        }
+        embedding
+    }
+    
 }
 
 #' @export

@@ -4,23 +4,39 @@
 \alias{read.wordvectors}
 \title{Read word vectors from a word2vec model from disk}
 \usage{
-read.wordvectors(file, normalize = TRUE, n = .Machine$integer.max)
+read.wordvectors(
+  file,
+  type = c("bin", "txt"),
+  n = .Machine$integer.max,
+  normalize = FALSE,
+  encoding = "UTF-8"
+)
 }
 \arguments{
 \item{file}{the path to the model file}
 
-\item{normalize}{logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to TRUE.}
+\item{type}{either 'bin' or 'txt' indicating the \code{file} is a binary file or a text file}
 
 \item{n}{integer, indicating to limit the number of words to read in. Defaults to reading all words.}
+
+\item{normalize}{logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to FALSE.}
+
+\item{encoding}{encoding to be assumed for the words. Defaults to 'UTF-8'}
 }
 \value{
-a matrix with the embeddings of the words, which are in UTF-8 encoding
+A matrix with the embeddings of the words. The rownames of the matrix are the words which are by default set to UTF-8 encoding.
 }
 \description{
-Read word vectors from a word2vec model from disk
+Read word vectors from a word2vec model from disk into a dense matrix
 }
 \examples{
 path  <- system.file(package = "word2vec", "models", "example.bin")
-embed <- read.wordvectors(path, n = 10)
-embed <- read.wordvectors(path)
+embed <- read.wordvectors(path, type = "bin", n = 10)
+embed <- read.wordvectors(path, type = "bin", n = 10, normalize = TRUE)
+embed <- read.wordvectors(path, type = "bin")
+
+path  <- system.file(package = "word2vec", "models", "example.txt")
+embed <- read.wordvectors(path, type = "txt", n = 10)
+embed <- read.wordvectors(path, type = "txt", n = 10, normalize = TRUE)
+embed <- read.wordvectors(path, type = "txt")
 }

@@ -17,7 +17,7 @@
 a matrix with the word vectors where the rownames are the words from the model vocabulary
 }
 \description{
-Get the word vectors of a word2vec model as a matrix.
+Get the word vectors of a word2vec model as a dense matrix.
 }
 \examples{
 path  <- system.file(package = "word2vec", "models", "example.bin")
