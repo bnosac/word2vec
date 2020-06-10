@@ -294,9 +294,10 @@ read.wordvectors <- function(file, type = c("bin", "txt"), n = .Machine$integer.
         x    
     }else if(type == "txt"){
         if(n < .Machine$integer.max){
-            n <- n + 1L
+            x <- readLines(file, skipNul = TRUE, encoding = encoding, n = n + 1L, warn = FALSE)
+        }else{
+            x <- readLines(file, skipNul = TRUE, encoding = encoding, warn = FALSE)
         }
-        x <- readLines(file, skipNul = TRUE, encoding = encoding, n = n)
         size <- x[1]
         size <- as.numeric(unlist(strsplit(size, " ")))
         x <- x[-1]
