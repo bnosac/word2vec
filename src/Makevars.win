@@ -11,7 +11,6 @@ SOURCES = word2vec/lib/huffmanTree.cpp \
 			word2vec/lib/win/mman.cpp \
 			word2vec/lib/word2vec.cpp \
 			rcpp_word2vec.cpp \
-			rcpp_word2vec_read.cpp \
 			RcppExports.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
