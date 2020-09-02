@@ -122,6 +122,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// d2vec
+Rcpp::List d2vec(SEXP ptr, Rcpp::StringVector x, std::string wordDelimiterChars);
+RcppExport SEXP _word2vec_d2vec(SEXP ptrSEXP, SEXP xSEXP, SEXP wordDelimiterCharsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< std::string >::type wordDelimiterChars(wordDelimiterCharsSEXP);
+    rcpp_result_gen = Rcpp::wrap(d2vec(ptr, x, wordDelimiterChars));
+    return rcpp_result_gen;
+END_RCPP
+}
+// d2vec_nearest
+Rcpp::DataFrame d2vec_nearest(SEXP ptr_w2v, SEXP ptr_d2v, Rcpp::StringVector x, std::string wordDelimiterChars);
+RcppExport SEXP _word2vec_d2vec_nearest(SEXP ptr_w2vSEXP, SEXP ptr_d2vSEXP, SEXP xSEXP, SEXP wordDelimiterCharsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr_w2v(ptr_w2vSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type ptr_d2v(ptr_d2vSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< std::string >::type wordDelimiterChars(wordDelimiterCharsSEXP);
+    rcpp_result_gen = Rcpp::wrap(d2vec_nearest(ptr_w2v, ptr_d2v, x, wordDelimiterChars));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_word2vec_w2v_train", (DL_FUNC) &_word2vec_w2v_train, 19},
@@ -132,6 +159,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_word2vec_w2v_nearest", (DL_FUNC) &_word2vec_w2v_nearest, 4},
     {"_word2vec_w2v_nearest_vector", (DL_FUNC) &_word2vec_w2v_nearest_vector, 4},
     {"_word2vec_w2v_read_binary", (DL_FUNC) &_word2vec_w2v_read_binary, 3},
+    {"_word2vec_d2vec", (DL_FUNC) &_word2vec_d2vec, 3},
+    {"_word2vec_d2vec_nearest", (DL_FUNC) &_word2vec_d2vec_nearest, 4},
     {NULL, NULL, 0}
 };
 

@@ -398,3 +398,59 @@ Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize,
   return embedding_default;
 }
 
+
+
+// [[Rcpp::export]]
+Rcpp::List d2vec(SEXP ptr, Rcpp::StringVector x, std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r") {
+  Rcpp::XPtr<w2v::w2vModel_t> model_w2v(ptr);
+  Rcpp::XPtr<w2v::d2vModel_t> model_d2v(new w2v::d2vModel_t(model_w2v->vectorSize()), true);
+  for (int i = 0; i < x.size(); i++){
+    std::string input = Rcpp::as<std::string>(x[i]);
+    w2v::doc2vec_t doc2vec(model_w2v, input, wordDelimiterChars);
+    model_d2v->set(i+1, doc2vec);
+  }
+  Rcpp::List out = Rcpp::List::create(
+    Rcpp::Named("model_d2v") = model_d2v,
+    Rcpp::Named("model_w2v") = model_w2v,
+    Rcpp::Named("dim") = model_w2v->vectorSize()
+  );
+  out.attr("class") = "doc2vec";
+  return out;
+}
+
+
+
+// [[Rcpp::export]]
+Rcpp::DataFrame d2vec_nearest(SEXP ptr_w2v, SEXP ptr_d2v, Rcpp::StringVector x, 
+                              std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r") {
+  std::vector<std::string> doc_ids =  x.attr("names");
+  std::string text = Rcpp::as<std::string>(x[0]);
+  std::string doc_id = doc_ids[0];
+  
+  Rcpp::XPtr<w2v::w2vModel_t> model_w2v(ptr_w2v);
+  Rcpp::XPtr<w2v::d2vModel_t> model_d2v(ptr_d2v);
+  w2v::doc2vec_t doc2vec(model_w2v, text, wordDelimiterChars);
+  
+  // get nearest article IDs from the model
+  std::vector<std::pair<std::size_t, float>> nearest;
+  model_d2v->nearest(doc2vec, nearest, model_d2v->modelSize());
+  
+  std::vector<int> keys;
+  std::vector<float> distance;
+  std::vector<int> rank;
+  int r = 0;
+  for(auto kv : nearest) {
+    keys.push_back(kv.first);
+    distance.push_back(kv.second);
+    r = r + 1;
+    rank.push_back(r);
+  } 
+  Rcpp::DataFrame out = Rcpp::DataFrame::create(
+    Rcpp::Named("term1") = doc_id,
+    Rcpp::Named("term2") = keys,
+    Rcpp::Named("similarity") = distance,
+    Rcpp::Named("rank") = rank,
+    Rcpp::Named("stringsAsFactors") = false
+  );
+  return out;
+}

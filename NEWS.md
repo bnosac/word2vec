@@ -1,3 +1,7 @@
+## CHANGES IN word2vec VERSION 0.3.0
+
+- Add doc2vec
+
 ## CHANGES IN word2vec VERSION 0.2.1
 
 - Fix R CMD check warning message on Fedora clang

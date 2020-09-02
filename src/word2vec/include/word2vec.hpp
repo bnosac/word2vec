@@ -5,7 +5,7 @@
  * @date 15.02.2017
  * @copyright Apache License v.2 (http://www.apache.org/licenses/LICENSE-2.0)
 */
-
+#include <Rcpp.h>
 #ifndef WORD2VEC_WORD2VEC_HPP
 #define WORD2VEC_WORD2VEC_HPP
 
@@ -375,7 +375,7 @@ namespace w2v {
          * @param _model w2vModel_t type object of a pretrained model
          * @param _doc text document to be converted to a vector
          */
-        doc2vec_t(const std::unique_ptr<w2vModel_t> &_model,
+        doc2vec_t(const Rcpp::XPtr<w2vModel_t> &_model,
                   const std::string &_doc,
                   const std::string &_wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r");
     };

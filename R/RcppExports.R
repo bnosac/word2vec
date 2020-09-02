@@ -33,3 +33,11 @@ w2v_read_binary <- function(modelFile, normalize, n) {
     .Call('_word2vec_w2v_read_binary', PACKAGE = 'word2vec', modelFile, normalize, n)
 }
 
+d2vec <- function(ptr, x, wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r") {
+    .Call('_word2vec_d2vec', PACKAGE = 'word2vec', ptr, x, wordDelimiterChars)
+}
+
+d2vec_nearest <- function(ptr_w2v, ptr_d2v, x, wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r") {
+    .Call('_word2vec_d2vec_nearest', PACKAGE = 'word2vec', ptr_w2v, ptr_d2v, x, wordDelimiterChars)
+}
+

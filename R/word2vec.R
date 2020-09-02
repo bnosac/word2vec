@@ -470,3 +470,4 @@ word2vec_similarity <- function(x, y, top_n = +Inf){
     }
     similarities
 }
+
