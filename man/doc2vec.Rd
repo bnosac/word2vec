@@ -33,7 +33,7 @@ x <- data.frame(doc_id = c("doc1", "doc2", "testmissingdata"),
                 stringsAsFactors = FALSE)
 emb <- doc2vec(model, x, type = "embedding")
 emb
-embedding_similarity(emb, doc2vec("i like busses with a toilet"))
+word2vec_similarity(emb, doc2vec("i like busses with a toilet"))
 
 ## similar way of extracting embeddings
 x <- setNames(c("there is no toilet. on the bus", "no tokens from dictionary", NA), c("a", "b", "c"))
