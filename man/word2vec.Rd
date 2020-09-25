@@ -18,6 +18,7 @@ word2vec(
   split = c(" \\n,.-!?:;/\\"#$\%&'()*+<=>@[]\\\\^_`{|}~\\t\\v\\f\\r", ".\\n?!"),
   stopwords = character(),
   threads = 1L,
+  encoding = "UTF-8",
   ...
 )
 }
@@ -47,6 +48,10 @@ word2vec(
 \item{stopwords}{a character vector of stopwords to exclude from training}
 
 \item{threads}{number of CPU threads to use. Defaults to 1.}
+
+\item{encoding}{the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
+Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
+is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector.}
 
 \item{...}{further arguments passed on to the C++ function \code{w2v_train} - for expert use only}
 }

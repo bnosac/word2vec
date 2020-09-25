@@ -13,6 +13,9 @@
 #' @param split a character vector of length 2 where the first element indicates how to split words and the second element indicates how to split sentences in \code{x}
 #' @param stopwords a character vector of stopwords to exclude from training 
 #' @param threads number of CPU threads to use. Defaults to 1.
+#' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
+#' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
+#' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector. 
 #' @param ... further arguments passed on to the C++ function \code{w2v_train} - for expert use only
 #' @return an object of class \code{w2v_trained} which is a list with elements 
 #' \itemize{
@@ -107,7 +110,8 @@ word2vec <- function(x,
                      split = c(" \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r", 
                                ".\n?!"),
                      stopwords = character(),
-                     threads = 1L, 
+                     threads = 1L,
+                     encoding = "UTF-8",
                      ...){
     type <- match.arg(type)
     stopw <- stopwords
@@ -116,7 +120,9 @@ word2vec <- function(x,
         stopw <- ""
     }
     file_stopwords <- tempfile()
-    writeLines(stopw, file_stopwords)
+    filehandle_stopwords <- file(file_stopwords, open = "wt", encoding = encoding)
+    writeLines(stopw, con = filehandle_stopwords)
+    close(filehandle_stopwords)
     on.exit({
         if (file.exists(file_stopwords)) file.remove(file_stopwords)
     })
@@ -128,10 +134,10 @@ word2vec <- function(x,
             if (file.exists(file_stopwords)) file.remove(file_stopwords)
             if (file.exists(file_train)) file.remove(file_train)
         })
-        writeLines(text = x, con = file_train)  
+        filehandle_train <- file(file_train, open = "wt", encoding = encoding)
+        writeLines(text = x, con = filehandle_train)  
+        close(filehandle_train)
     }
-    
-    
     #expTableSize <- 1000L
     #expValueMax <- 6L
     #expTableSize <- as.integer(expTableSize)

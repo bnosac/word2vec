@@ -1,3 +1,7 @@
+## CHANGES IN word2vec VERSION 0.3.1
+
+- word2vec gains argument encoding
+
 ## CHANGES IN word2vec VERSION 0.3.0
 
 - Add doc2vec
