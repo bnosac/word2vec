@@ -1,3 +1,7 @@
+## CHANGES IN word2vec VERSION 0.3.2
+
+- Make example conditionally on availability of udpipe
+
 ## CHANGES IN word2vec VERSION 0.3.1
 
 - word2vec gains argument encoding
