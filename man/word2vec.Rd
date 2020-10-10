@@ -80,6 +80,7 @@ Some advice on the optimal set of parameters to use for training as defined by M
 }
 }
 \examples{
+\dontshow{if(require(udpipe))\{}
 library(udpipe)
 ## Take data and standardise it a bit
 data(brussels_reviews, package = "udpipe")
@@ -144,6 +145,8 @@ nn    <- predict(model, c("cuisine/NN", "rencontrer/VB"), type = "nearest")
 nn
 nn    <- predict(model, c("accueillir/VBN", "accueillir/VBG"), type = "nearest")
 nn
+
+\dontshow{\} # End of main if statement running only if the required packages are installed}
 }
 \references{
 \url{https://github.com/maxoodf/word2vec}, \url{https://arxiv.org/pdf/1310.4546.pdf}

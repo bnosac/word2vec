@@ -39,6 +39,7 @@
 #' @seealso \code{\link{predict.word2vec}}, \code{\link{as.matrix.word2vec}}
 #' @export
 #' @examples
+#' \dontshow{if(require(udpipe))\{}
 #' library(udpipe)
 #' ## Take data and standardise it a bit
 #' data(brussels_reviews, package = "udpipe")
@@ -103,6 +104,8 @@
 #' nn
 #' nn    <- predict(model, c("accueillir/VBN", "accueillir/VBG"), type = "nearest")
 #' nn
+#' 
+#' \dontshow{\} # End of main if statement running only if the required packages are installed}
 word2vec <- function(x,
                      type = c("cbow", "skip-gram"),
                      dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
@@ -215,9 +218,8 @@ as.matrix.word2vec_trained <- function(x, encoding='UTF-8', ...){
 #' \dontshow{
 #' file.remove(path)
 #' }
-#' \dontshow{if(require(udpipe))
-#' \{
-#' }
+#' 
+#' \dontshow{if(require(udpipe))\{}
 #' ## Save the model to hard disk as a text file (uses package udpipe)
 #' library(udpipe)
 #' path <- "mymodel.txt"
@@ -228,10 +230,7 @@ as.matrix.word2vec_trained <- function(x, encoding='UTF-8', ...){
 #' \dontshow{
 #' file.remove(path)
 #' }
-#' \dontshow{
-#' \}
-#' # End of main if statement running only if the required packages are installed
-#' }
+#' \dontshow{\} # End of main if statement running only if the required packages are installed}
 write.word2vec <- function(x, file, type = c("bin", "txt"), encoding = "UTF-8"){
     type <- match.arg(type)
     if(type == "bin"){

@@ -35,9 +35,8 @@ write.word2vec(model, file = path)
 \dontshow{
 file.remove(path)
 }
-\dontshow{if(require(udpipe))
-\{
-}
+
+\dontshow{if(require(udpipe))\{}
 ## Save the model to hard disk as a text file (uses package udpipe)
 library(udpipe)
 path <- "mymodel.txt"
@@ -48,10 +47,7 @@ write.word2vec(model, file = path, type = "txt")
 \dontshow{
 file.remove(path)
 }
-\dontshow{
-\}
-# End of main if statement running only if the required packages are installed
-}
+\dontshow{\} # End of main if statement running only if the required packages are installed}
 }
 \seealso{
 \code{\link{word2vec}}
