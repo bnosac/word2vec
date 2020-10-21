@@ -1,3 +1,7 @@
+## CHANGES IN word2vec VERSION 0.3.3
+
+- Allow doc2vec also to be used on word2vec_trained
+
 ## CHANGES IN word2vec VERSION 0.3.2
 
 - Make example conditionally on availability of udpipe

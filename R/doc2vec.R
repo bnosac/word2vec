@@ -57,7 +57,7 @@ embed_doc <- function(model, tokens, encoding = "UTF-8"){
 #' emb <- doc2vec(model, x, type = "embedding")
 #' emb
 doc2vec <- function(object, newdata, split = " ", encoding = "UTF-8", ...){
-    if(!inherits(object, "word2vec")){
+    if(!inherits(object, c("word2vec", "word2vec_trained"))){
         warning("doc2vec requires as input an object of class word2vec")
     }
     if(is.character(newdata)){
