@@ -18,8 +18,8 @@ txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
 \item{trim}{logical indicating to trim leading/trailing white space. Defaults to TRUE.}
 }
 \value{
-the character vector \code{x} of the same length as \code{x} 
-which is standardised by translating to ascii, lowercasing and 
+a character vector of the same length as \code{x} 
+which is standardised by converting the encoding to ascii, lowercasing and 
 keeping only alphanumeric elements
 }
 \description{

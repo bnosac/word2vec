@@ -12,8 +12,8 @@
 #' @param alpha logical indicating to keep only alphanumeric characters. Defaults to TRUE.
 #' @param tolower logical indicating to lowercase \code{x}. Defaults to TRUE.
 #' @param trim logical indicating to trim leading/trailing white space. Defaults to TRUE.
-#' @return the character vector \code{x} of the same length as \code{x} 
-#' which is standardised by translating to ascii, lowercasing and 
+#' @return a character vector of the same length as \code{x} 
+#' which is standardised by converting the encoding to ascii, lowercasing and 
 #' keeping only alphanumeric elements 
 #' @export
 #' @examples 
