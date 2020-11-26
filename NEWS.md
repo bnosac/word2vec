@@ -1,6 +1,7 @@
 ## CHANGES IN word2vec VERSION 0.3.3
 
 - Allow doc2vec also to be used on word2vec_trained
+- Add txt_clean_word2vec
 
 ## CHANGES IN word2vec VERSION 0.3.2
 
