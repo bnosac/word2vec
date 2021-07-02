@@ -4,7 +4,7 @@
 \alias{word2vec_similarity}
 \title{Similarity between word vectors as used in word2vec}
 \usage{
-word2vec_similarity(x, y, top_n = +Inf)
+word2vec_similarity(x, y, top_n = +Inf, type = c("dot", "cosine"))
 }
 \arguments{
 \item{x}{a matrix with embeddings where the rownames of the matrix provide the label of the term}
@@ -14,6 +14,8 @@ word2vec_similarity(x, y, top_n = +Inf)
 \item{top_n}{integer indicating to return only the top n most similar terms from y for each row of x. 
 If \code{top_n} is supplied, a data.frame will be returned with only the highest similarities between x and y 
 instead of all pairwise similarities}
+
+\item{type}{character string with the type of similarity. Either 'dot' or 'cosine'. Defaults to 'dot'.}
 }
 \value{
 By default, the function returns a similarity matrix between the rows of \code{x} and the rows of \code{y}. 
@@ -23,7 +25,9 @@ indicating the similarity between the provided terms in \code{x} and \code{y}
 ordered from high to low similarity and keeping only the top_n most similar records.
 }
 \description{
-The similarity between word vectors is defined as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+The similarity between word vectors is defined \cr
+for type 'dot' as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+for type 'cosine' as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2))
 }
 \examples{
 x <- matrix(rnorm(6), nrow = 2, ncol = 3)
@@ -35,11 +39,15 @@ word2vec_similarity(x, y)
 word2vec_similarity(x, y, top_n = 1)
 word2vec_similarity(x, y, top_n = 2)
 word2vec_similarity(x, y, top_n = +Inf)
+word2vec_similarity(x, y, type = "cosine")
+word2vec_similarity(x, y, top_n = 1, type = "cosine")
+word2vec_similarity(x, y, top_n = 2, type = "cosine")
+word2vec_similarity(x, y, top_n = +Inf, type = "cosine")
 
 ## Example with a word2vec model
 path  <- system.file(package = "word2vec", "models", "example.bin")
 model <- read.word2vec(path)
-emb <- as.matrix(model)
+emb   <- as.matrix(model)
 
 x <- emb[c("gastheer", "gastvrouw", "kamer"), ]
 y <- emb

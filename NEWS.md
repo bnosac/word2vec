@@ -1,3 +1,8 @@
+## CHANGES IN word2vec VERSION 0.3.4
+
+- Remove LazyData from DESCRIPTION as there is no data to be lazy about
+- Add option type to word2vec_similarity to allow both 'dot' similarity which is the default as 'cosine' similarity (requested in issue #5)
+
 ## CHANGES IN word2vec VERSION 0.3.3
 
 - Allow doc2vec also to be used on word2vec_trained

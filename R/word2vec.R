@@ -425,12 +425,15 @@ predict.word2vec_trained <- function(object, newdata, type = c("nearest", "embed
 
 
 #' @title Similarity between word vectors as used in word2vec
-#' @description The similarity between word vectors is defined as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+#' @description The similarity between word vectors is defined \cr
+#' for type 'dot' as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+#' for type 'cosine' as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) 
 #' @param x a matrix with embeddings where the rownames of the matrix provide the label of the term
 #' @param y a matrix with embeddings where the rownames of the matrix provide the label of the term
 #' @param top_n integer indicating to return only the top n most similar terms from y for each row of x. 
 #' If \code{top_n} is supplied, a data.frame will be returned with only the highest similarities between x and y 
 #' instead of all pairwise similarities
+#' @param type character string with the type of similarity. Either 'dot' or 'cosine'. Defaults to 'dot'.
 #' @return 
 #' By default, the function returns a similarity matrix between the rows of \code{x} and the rows of \code{y}. 
 #' The similarity between row i of \code{x} and row j of \code{y} is found in cell \code{[i, j]} of the returned similarity matrix.\cr
@@ -449,29 +452,41 @@ predict.word2vec_trained <- function(object, newdata, type = c("nearest", "embed
 #' word2vec_similarity(x, y, top_n = 1)
 #' word2vec_similarity(x, y, top_n = 2)
 #' word2vec_similarity(x, y, top_n = +Inf)
+#' word2vec_similarity(x, y, type = "cosine")
+#' word2vec_similarity(x, y, top_n = 1, type = "cosine")
+#' word2vec_similarity(x, y, top_n = 2, type = "cosine")
+#' word2vec_similarity(x, y, top_n = +Inf, type = "cosine")
 #' 
 #' ## Example with a word2vec model
 #' path  <- system.file(package = "word2vec", "models", "example.bin")
 #' model <- read.word2vec(path)
-#' emb <- as.matrix(model)
+#' emb   <- as.matrix(model)
 #' 
 #' x <- emb[c("gastheer", "gastvrouw", "kamer"), ]
 #' y <- emb
 #' word2vec_similarity(x, x)
 #' word2vec_similarity(x, y, top_n = 3)
 #' predict(model, x, type = "nearest", top_n = 3)
-word2vec_similarity <- function(x, y, top_n = +Inf){
+word2vec_similarity <- function(x, y, top_n = +Inf, type = c("dot", "cosine")){
+    type <- match.arg(type)
     if (!is.matrix(x)) {
         x <- matrix(x, nrow = 1)
     }
     if (!is.matrix(y)) {
         y <- matrix(y, nrow = 1)
     }
-    vectorsize <- ncol(x)
-    similarities <- tcrossprod(x, y)
-    similarities <- similarities / vectorsize
-    similarities[similarities < 0] <- 0
-    similarities <- sqrt(similarities)
+    if(type == "dot"){
+        vectorsize   <- ncol(x)
+        similarities <- tcrossprod(x, y)
+        similarities <- similarities / vectorsize
+        similarities[similarities < 0] <- 0
+        similarities <- sqrt(similarities)    
+    }else if (type == "cosine"){
+        similarities  <- tcrossprod(x, y)
+        x_scale       <- sqrt(apply(x, MARGIN = 1, FUN = crossprod))
+        y_scale       <- sqrt(apply(y, MARGIN = 1, FUN = crossprod))
+        similarities  <- similarities / outer(t1, t2, FUN = "*")
+    }
     if (!missing(top_n)) {
         similarities <- as.data.frame.table(similarities, stringsAsFactors = FALSE)
         colnames(similarities) <- c("term1", "term2", "similarity")
