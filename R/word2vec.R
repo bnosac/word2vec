@@ -485,7 +485,7 @@ word2vec_similarity <- function(x, y, top_n = +Inf, type = c("dot", "cosine")){
         similarities  <- tcrossprod(x, y)
         x_scale       <- sqrt(apply(x, MARGIN = 1, FUN = crossprod))
         y_scale       <- sqrt(apply(y, MARGIN = 1, FUN = crossprod))
-        similarities  <- similarities / outer(t1, t2, FUN = "*")
+        similarities  <- similarities / outer(x_scale, y_scale, FUN = "*")
     }
     if (!missing(top_n)) {
         similarities <- as.data.frame.table(similarities, stringsAsFactors = FALSE)
