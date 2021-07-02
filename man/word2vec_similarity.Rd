@@ -25,9 +25,11 @@ indicating the similarity between the provided terms in \code{x} and \code{y}
 ordered from high to low similarity and keeping only the top_n most similar records.
 }
 \description{
-The similarity between word vectors is defined \cr
-for type 'dot' as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
-for type 'cosine' as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2))
+The similarity between word vectors is defined 
+\itemize{
+ \item{for type 'dot': }{as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero}
+ \item{for type 'cosine': }{as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) }
+}
 }
 \examples{
 x <- matrix(rnorm(6), nrow = 2, ncol = 3)
