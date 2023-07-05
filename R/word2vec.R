@@ -129,7 +129,7 @@ word2vec <- function(x,
     on.exit({
         if (file.exists(file_stopwords)) file.remove(file_stopwords)
     })
-    if(length(x) == 1){
+    if(length(x) == 1 && file.exists(x)){
          file_train <- x
     }else{
         file_train <- tempfile(pattern = "textspace_", fileext = ".txt")
