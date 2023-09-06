@@ -10,7 +10,9 @@
 
 // [[Rcpp::depends(RcppProgress)]]
 // [[Rcpp::export]]
-Rcpp::List w2v_train(std::string trainFile, std::string modelFile, std::string stopWordsFile, 
+Rcpp::List w2v_train(Rcpp::List texts_, 
+                     Rcpp::CharacterVector stopWords_, 
+                     std::string modelFile, 
                      uint16_t minWordFreq = 5,
                      uint16_t size = 100,
                      uint8_t window = 5,
@@ -45,6 +47,11 @@ Rcpp::List w2v_train(std::string trainFile, std::string modelFile, std::string s
    std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r";
    std::string endOfSentenceChars = ".\n?!";
    */
+  
+  texts_t texts = Rcpp::as<texts_t>(texts_);
+  words_t stopWords = Rcpp::as<words_t>(stopWords_);
+  w2v::corpus_t corpus(texts, stopWords);
+    
   w2v::trainSettings_t trainSettings;
   trainSettings.minWordFreq = minWordFreq;
   trainSettings.size = size;
