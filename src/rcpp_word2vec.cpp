@@ -77,7 +77,8 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   std::size_t totalWords;
   if (verbose) {
     Progress p(100, true);
-    trained = model->train(trainSettings, corpus, trainFile, stopWordsFile,
+    trained = model->train(trainSettings, corpus, 
+                           trainFile, stopWordsFile, // NOTE: remove
                            [&p] (float _percent) {
                              p.update(_percent/2);
                              /*
@@ -116,7 +117,8 @@ Rcpp::List w2v_train(Rcpp::List texts_,
     );
     //std::cout << std::endl;
   } else {
-    trained = model->train(trainSettings, corpus, trainFile, stopWordsFile, 
+    trained = model->train(trainSettings, corpus, 
+                           trainFile, stopWordsFile, // NOTE: remove
                            nullptr, 
                            [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
                              /*

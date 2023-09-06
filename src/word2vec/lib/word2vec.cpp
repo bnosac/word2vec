@@ -13,8 +13,9 @@
 
 namespace w2v {
     bool w2vModel_t::train(const trainSettings_t &_trainSettings,
-                           const std::string &_trainFile,
-                           const std::string &_stopWordsFile,
+                           const corpus_t &_corpus,
+                           const std::string &_trainFile, // NOTE: remove
+                           const std::string &_stopWordsFile, // NOTE: remove
                            vocabularyProgressCallback_t _vocabularyProgressCallback,
                            vocabularyStatsCallback_t _vocabularyStatsCallback,
                            trainProgressCallback_t _trainProgressCallback) noexcept {
