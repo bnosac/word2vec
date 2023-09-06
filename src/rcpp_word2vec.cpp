@@ -12,7 +12,9 @@
 // [[Rcpp::export]]
 Rcpp::List w2v_train(Rcpp::List texts_, 
                      Rcpp::CharacterVector stopWords_, 
+                     std::string trainFile, // NOTE: remove
                      std::string modelFile, 
+                     std::string stopWordsFile, // NOTE: remove
                      uint16_t minWordFreq = 5,
                      uint16_t size = 100,
                      uint8_t window = 5,
@@ -75,7 +77,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   std::size_t totalWords;
   if (verbose) {
     Progress p(100, true);
-    trained = model->train(trainSettings, trainFile, stopWordsFile,
+    trained = model->train(trainSettings, corpus, trainFile, stopWordsFile,
                            [&p] (float _percent) {
                              p.update(_percent/2);
                              /*
@@ -114,7 +116,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
     );
     //std::cout << std::endl;
   } else {
-    trained = model->train(trainSettings, trainFile, stopWordsFile, 
+    trained = model->train(trainSettings, corpus, trainFile, stopWordsFile, 
                            nullptr, 
                            [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
                              /*
