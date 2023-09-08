@@ -34,14 +34,22 @@ namespace w2v {
             }
 
             // build vocabulary, skip stop-words and words with frequency < minWordFreq
-            std::shared_ptr<vocabulary_t> vocabulary(new vocabulary_t(corpus,
-                                                                      trainWordsMapper,
-                                                                      stopWordsMapper,
-                                                                      _trainSettings.wordDelimiterChars,
-                                                                      _trainSettings.endOfSentenceChars,
-                                                                      _trainSettings.minWordFreq,
-                                                                      _vocabularyProgressCallback,
-                                                                      _vocabularyStatsCallback));
+            std::shared_ptr<vocabulary_t> vocabulary;
+            if (!_trainFile.empty()) {
+                vocabulary.reset(new vocabulary_t(trainWordsMapper,
+                                                  stopWordsMapper,
+                                                  _trainSettings.wordDelimiterChars,
+                                                  _trainSettings.endOfSentenceChars,
+                                                  _trainSettings.minWordFreq,
+                                                  _vocabularyProgressCallback,
+                                                  _vocabularyStatsCallback));
+            } else {
+                vocabulary.reset(new vocabulary_t(corpus,
+                                                  _trainSettings.minWordFreq,
+                                                  _vocabularyProgressCallback,
+                                                  _vocabularyStatsCallback));
+            }
+            
             // key words descending ordered by their indexes
             std::vector<std::string> words;
             vocabulary->words(words);
