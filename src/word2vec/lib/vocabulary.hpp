@@ -62,7 +62,8 @@ namespace w2v {
          * @param _statsCallback callback function to be called on train data loaded event to pass vocabulary size,
          * train words and total words amounts.
         */
-        vocabulary_t(std::shared_ptr<fileMapper_t> &_trainWordsMapper,
+        vocabulary_t(std::shared_ptr<corpus_t> &_corpus,
+                     std::shared_ptr<fileMapper_t> &_trainWordsMapper,
                      std::shared_ptr<fileMapper_t> &_stopWordsMapper,
                      const std::string &_wordDelimiterChars,
                      const std::string &_endOfSentenceChars,

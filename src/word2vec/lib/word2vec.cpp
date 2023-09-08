@@ -20,8 +20,13 @@ namespace w2v {
                            vocabularyStatsCallback_t _vocabularyStatsCallback,
                            trainProgressCallback_t _trainProgressCallback) noexcept {
         try {
+            // store tokens
+            std::shared_ptr<corpus_t> corpus(new corpus_t(_corpus));
             // map train data set file to memory
-            std::shared_ptr<fileMapper_t> trainWordsMapper(new fileMapper_t(_trainFile));
+            std::shared_ptr<fileMapper_t> trainWordsMapper;
+            if (!_trainFile.empty()) {
+                trainWordsMapper.reset(new fileMapper_t(_trainFile));
+            }
             // map stop-words file to memory
             std::shared_ptr<fileMapper_t> stopWordsMapper;
             if (!_stopWordsFile.empty()) {
@@ -29,7 +34,8 @@ namespace w2v {
             }
 
             // build vocabulary, skip stop-words and words with frequency < minWordFreq
-            std::shared_ptr<vocabulary_t> vocabulary(new vocabulary_t(trainWordsMapper,
+            std::shared_ptr<vocabulary_t> vocabulary(new vocabulary_t(corpus,
+                                                                      trainWordsMapper,
                                                                       stopWordsMapper,
                                                                       _trainSettings.wordDelimiterChars,
                                                                       _trainSettings.endOfSentenceChars,
