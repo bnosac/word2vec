@@ -157,7 +157,8 @@ word2vec <- function(x,
     lr <- as.numeric(lr)
     skipgram <- as.logical(type %in% "skip-gram")
     split <- as.character(split)
-    model <- w2v_train(trainFile = file_train, modelFile = model, stopWordsFile = file_stopwords,
+    model <- w2v_train(list(), character(), # NOTE: place holders
+                       trainFile = file_train, modelFile = model, stopWordsFile = file_stopwords,
                        minWordFreq = min_count,
                        size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
                        sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
