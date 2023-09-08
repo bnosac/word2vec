@@ -10,7 +10,8 @@
 #include "wordReader.hpp"
 
 namespace w2v {
-    vocabulary_t::vocabulary_t(std::shared_ptr<fileMapper_t> &_trainWordsMapper,
+    vocabulary_t::vocabulary_t(std::shared_ptr<corpus_t> &_corpus,
+                               std::shared_ptr<fileMapper_t> &_trainWordsMapper,
                                std::shared_ptr<fileMapper_t> &_stopWordsMapper,
                                const std::string &_wordDelimiterChars,
                                const std::string &_endOfSentenceChars,
