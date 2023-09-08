@@ -4,36 +4,22 @@
 \alias{word2vec}
 \title{Train a word2vec model on text}
 \usage{
-word2vec(
-  x,
-  type = c("cbow", "skip-gram"),
-  dim = 50,
-  window = ifelse(type == "cbow", 5L, 10L),
-  iter = 5L,
-  lr = 0.05,
-  hs = FALSE,
-  negative = 5L,
-  sample = 0.001,
-  min_count = 5L,
-  split = c(" \\n,.-!?:;/\\"#$\%&'()*+<=>@[]\\\\^_`{|}~\\t\\v\\f\\r", ".\\n?!"),
-  stopwords = character(),
-  threads = 1L,
-  encoding = "UTF-8",
-  ...
-)
+word2vec(x, ...)
 }
 \arguments{
 \item{x}{a character vector with text or the path to the file on disk containing training data}
+
+\item{...}{further arguments passed on to the C++ function \code{w2v_train} - for expert use only}
 
 \item{type}{the type of algorithm to use, either 'cbow' or 'skip-gram'. Defaults to 'cbow'}
 
 \item{dim}{dimension of the word vectors. Defaults to 50.}
 
-\item{window}{skip length between words. Defaults to 5.}
-
 \item{iter}{number of training iterations. Defaults to 5.}
 
 \item{lr}{initial learning rate also known as alpha. Defaults to 0.05}
+
+\item{window}{skip length between words. Defaults to 5.}
 
 \item{hs}{logical indicating to use hierarchical softmax instead of negative sampling. Defaults to FALSE indicating to do negative sampling.}
 
@@ -52,8 +38,6 @@ word2vec(
 \item{encoding}{the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
 is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector.}
-
-\item{...}{further arguments passed on to the C++ function \code{w2v_train} - for expert use only}
 }
 \value{
 an object of class \code{w2v_trained} which is a list with elements 
