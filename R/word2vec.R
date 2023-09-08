@@ -106,7 +106,12 @@
 #' nn
 #' 
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
-word2vec <- function(x,
+word2vec <- function(x, ...) {
+    UseMethod("word2vec")
+}
+
+#' @export
+word2vec.character <- function(x,
                      type = c("cbow", "skip-gram"),
                      dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
                      iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
@@ -157,12 +162,49 @@ word2vec <- function(x,
     lr <- as.numeric(lr)
     skipgram <- as.logical(type %in% "skip-gram")
     split <- as.character(split)
-    model <- w2v_train(list(), character(), # NOTE: place holders
+    model <- w2v_train(list(), character(), 
                        trainFile = file_train, modelFile = model, stopWordsFile = file_stopwords,
                        minWordFreq = min_count,
                        size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
                        sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
                        alpha = lr, withSG = skipgram, wordDelimiterChars = split[1], endOfSentenceChars = split[2], ...)
+    model$data$stopwords <- stopwords
+    model
+}
+
+#' @export
+word2vec.list <- function(x,
+                          type = c("cbow", "skip-gram"),
+                          dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
+                          iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
+                          stopwords = character(),
+                          threads = 1L,
+                           ...){
+    type <- match.arg(type)
+    stopwords <- as.character(stopwords)
+    model <- file.path(tempdir(), "w2v.bin")
+    #expTableSize <- 1000L
+    #expValueMax <- 6L
+    #expTableSize <- as.integer(expTableSize)
+    #expValueMax <- as.integer(expValueMax)
+    min_count <- as.integer(min_count)
+    dim <- as.integer(dim)
+    window <- as.integer(window)
+    iter <- as.integer(iter)
+    sample <- as.numeric(sample)
+    hs <- as.logical(hs)
+    negative <- as.integer(negative)
+    threads <- as.integer(threads)
+    iter <- as.integer(iter)
+    lr <- as.numeric(lr)
+    skipgram <- as.logical(type %in% "skip-gram")
+    encoding <- "UTF-8"
+    model <- w2v_train(x, stopwords,
+                       trainFile = "", modelFile = model, stopWordsFile = "",
+                       minWordFreq = min_count,
+                       size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
+                       sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
+                       alpha = lr, withSG = skipgram, wordDelimiterChars = "", endOfSentenceChars = "", ...)
     model$data$stopwords <- stopwords
     model
 }
