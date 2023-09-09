@@ -50,10 +50,24 @@ namespace w2v {
             std::shared_ptr<std::atomic<float>> alpha; ///< current learning rate
             std::function<void(float, float)> progressCallback = nullptr; ///< callback with alpha and training percent
         };
+        
+        struct sharedData2_t final {
+            std::shared_ptr<trainSettings_t> trainSettings; ///< trainSettings structure
+            std::shared_ptr<vocabulary_t> vocabulary; ///< words data
+            std::shared_ptr<corpus_t> corpus; ///< train data 
+            //std::shared_ptr<fileMapper_t> fileMapper; ///< train data file access object
+            std::shared_ptr<std::vector<float>> bpWeights; ///< back propagation weights
+            std::shared_ptr<std::vector<float>> expTable; ///< exp(x) / (exp(x) + 1) values lookup table
+            std::shared_ptr<huffmanTree_t> huffmanTree; ///< Huffman tree used by hierarchical softmax
+            std::shared_ptr<std::atomic<std::size_t>> processedWords; ///< total words processed by train threads
+            std::shared_ptr<std::atomic<float>> alpha; ///< current learning rate
+            std::function<void(float, float)> progressCallback = nullptr; ///< callback with alpha and training percent
+        };
 
     private:
         sharedData_t m_sharedData;
-
+        sharedData_t m_sharedData2;
+        
         std::random_device m_randomDevice;
         std::mt19937_64 m_randomGenerator;
         std::uniform_int_distribution<short> m_rndWindowShift;
