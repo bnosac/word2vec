@@ -62,6 +62,15 @@ namespace w2v {
         }
     }
 
+    trainer_t::trainer_t(const std::shared_ptr<trainSettings_t> &_trainSettings,
+                         const std::shared_ptr<vocabulary_t> &_vocabulary,
+                         const std::shared_ptr<corpus_t> &_corpus,
+                         std::function<void(float, float)> _progressCallback): m_threads() {
+        
+        throw std::runtime_error("trainer_t() is empty");
+        //Rcpp::Rcout << "Run trainer_t()\n";
+    }
+
     void trainer_t::operator()(std::vector<float> &_trainMatrix) noexcept {
         // input matrix initialized with small random values
         std::random_device randomDevice;
