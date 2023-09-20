@@ -42,27 +42,36 @@ namespace w2v {
             m_hiddenLayerVals.reset(new std::vector<float>(m_sharedData.trainSettings->size));
         }
 
-        if (!m_sharedData.fileMapper) {
-            throw std::runtime_error("file mapper object is not initialized");
+        if (!m_sharedData.corpus && !m_sharedData.fileMapper) {
+            throw std::runtime_error("corpus and file mapper objects are not initialized");
         }
-        auto shift = m_sharedData.fileMapper->size() / m_sharedData.trainSettings->threads;
-        auto startFrom = shift * _id;
-        auto stopAt = (_id == m_sharedData.trainSettings->threads - 1)
-                      ? (m_sharedData.fileMapper->size() - 1) : (shift * (_id + 1));
-        m_wordReader.reset(new wordReader_t<fileMapper_t>(*m_sharedData.fileMapper,
-                                                          m_sharedData.trainSettings->wordDelimiterChars,
-                                                          m_sharedData.trainSettings->endOfSentenceChars,
-                                                          startFrom, stopAt));
+        if (m_sharedData.fileMapper) {
+            auto shift = m_sharedData.fileMapper->size() / m_sharedData.trainSettings->threads;
+            auto startFrom = shift * _id;
+            auto stopAt = (_id == m_sharedData.trainSettings->threads - 1)
+                          ? (m_sharedData.fileMapper->size() - 1) : (shift * (_id + 1));
+            m_wordReader.reset(new wordReader_t<fileMapper_t>(*m_sharedData.fileMapper,
+                                                              m_sharedData.trainSettings->wordDelimiterChars,
+                                                              m_sharedData.trainSettings->endOfSentenceChars,
+                                                              startFrom, stopAt));
+        } else {
+            // NOTE: specify range for workers
+            auto n = m_sharedData.corpus->texts.size();
+            auto threads = m_sharedData.trainSettings->threads;
+            range = std::make_pair(floor((n / threads) * _id),
+                                   floor((n / threads) * (_id + 1)) - 1);
+        }
     }
 
     void trainThread_t::worker(std::vector<float> &_trainMatrix) noexcept {
-        for (auto i = m_sharedData.trainSettings->iterations; i > 0; --i) {
+        for (auto g = m_sharedData.trainSettings->iterations; g > 0; --g) {
+            std::size_t h = 0; // NOTE: only used for corpus
             bool exitFlag = false;
             std::size_t threadProcessedWords = 0;
             std::size_t prvThreadProcessedWords = 0;
             m_wordReader->reset();
             auto wordsPerAllThreads = m_sharedData.trainSettings->iterations
-                              * m_sharedData.vocabulary->trainWords();
+                                      * m_sharedData.vocabulary->trainWords();
             auto wordsPerAlpha = wordsPerAllThreads / 10000;
             while (!exitFlag) {
                 // calc alpha
@@ -83,39 +92,70 @@ namespace w2v {
                         m_sharedData.progressCallback(curAlpha, ratio * 100.0f);
                     }
                 }
-
+                
                 // read sentence
                 std::vector<const vocabulary_t::wordData_t *> sentence;
-                while (true) {
-                    std::string word;
-                    if (!m_wordReader->nextWord(word)) {
+                if (m_sharedData.fileMapper) {
+                    while (true) {
+                        std::string word;
+                        
+                        if (!m_wordReader->nextWord(word)) {
+                            exitFlag = true; // EOF or end of requested region
+                            break;
+                        }
+                        if (word.empty()) {
+                            break; // end of sentence
+                        }
+                        
+                        auto wordData = m_sharedData.vocabulary->data(word);
+                        if (wordData == nullptr) {
+                            continue; // no such word
+                        }
+    
+                        threadProcessedWords++;
+    
+                        if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
+                            if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
+                                continue; // skip this word
+                            }
+                        }
+                        sentence.push_back(wordData);
+                    }
+                } else {
+                    if (h == range.second) {
                         exitFlag = true; // EOF or end of requested region
                         break;
                     }
-                    if (word.empty()) {
-                        break; // end of sentence
-                    }
+                    text_t text = m_sharedData.corpus->texts[h];
+                    Rcpp::Rcout << range.first << " to " << range.second << "\n"; 
+                    for (size_t i = range.first; i <= range.second; i++) {
 
-                    auto wordData = m_sharedData.vocabulary->data(word);
-                    if (wordData == nullptr) {
-                        continue; // no such word
-                    }
-
-                    threadProcessedWords++;
-
-                    if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
-                        if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
-                            continue; // skip this word
+                        std::string word = text[i];
+                        if (word.empty()) {
+                            continue; // padding
                         }
-                    }
-                    sentence.push_back(wordData);
-                }
+                        auto wordData = m_sharedData.vocabulary->data(word);
+                        if (wordData == nullptr) {
+                            continue; // no such word
+                        }
+                        
+                        threadProcessedWords++;
+                        
+                        if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
+                            if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
+                                continue; // skip this word
+                            }
+                        }
+                        sentence.push_back(wordData);
 
+                    }
+                }
                 if (m_sharedData.trainSettings->withSG) {
                     skipGram(sentence, _trainMatrix);
                 } else {
                     cbow(sentence, _trainMatrix);
                 }
+                h++; // move to next text
             }
         }
     }
