@@ -63,7 +63,7 @@ namespace w2v {
                       corpus,
                       trainWordsMapper, // NOTE: remove
                       _trainProgressCallback)(_trainMatrix);
-            Rcpp::Rcout << "_trainMatrix: " << _trainMatrix.size() << "\n";
+            //Rcpp::Rcout << "_trainMatrix: " << _trainMatrix.size() << "\n";
             
             std::size_t wordIndex = 0;
             for (auto const &i:words) {
