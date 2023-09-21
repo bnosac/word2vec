@@ -58,18 +58,13 @@ namespace w2v {
 
             // train model
             std::vector<float> _trainMatrix;
-            if (!_trainFile.empty()) {
-                trainer_t(std::make_shared<trainSettings_t>(_trainSettings),
-                          vocabulary,
-                          trainWordsMapper,
-                          _trainProgressCallback)(_trainMatrix);
-            } else {
-                trainer_t(std::make_shared<trainSettings_t>(_trainSettings),
-                          vocabulary,
-                          corpus,
-                          _trainProgressCallback)(_trainMatrix);
-            }
-
+            trainer_t(std::make_shared<trainSettings_t>(_trainSettings),
+                      vocabulary,
+                      corpus,
+                      trainWordsMapper, // NOTE: remove
+                      _trainProgressCallback)(_trainMatrix);
+            Rcpp::Rcout << "_trainMatrix: " << _trainMatrix.size() << "\n";
+            
             std::size_t wordIndex = 0;
             for (auto const &i:words) {
                 auto &v = m_map[i];
