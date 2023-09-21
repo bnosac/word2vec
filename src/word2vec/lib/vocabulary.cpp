@@ -78,6 +78,7 @@ namespace w2v {
         // delimiter is the first word
         wordsFreq.emplace_back(std::pair<std::string, std::size_t>("</s>", 0LU));
         for (auto const &i:tmpWords) {
+            //Rcpp::Rcout << i.first << ": " << i.second.frequency << "\n";
             if (i.second.frequency >= _minFreq) {
                 wordsFreq.emplace_back(std::pair<std::string, std::size_t>(i.first, i.second.frequency));
                 m_trainWords += i.second.frequency;
@@ -101,6 +102,7 @@ namespace w2v {
         for (std::size_t i = 0; i < wordsFreq.size(); ++i) {
             auto &w = tmpWords[wordsFreq[i].first];
             m_words[wordsFreq[i].first] = wordData_t(i, w.frequency);
+            //Rcpp::Rcout << i << " " << wordsFreq[i].first << ": " << wordsFreq[i].second << "\n";
         }
 
         if (_statsCallback != nullptr) {
@@ -151,14 +153,14 @@ namespace w2v {
         }
         
         // remove sentence delimiter from the words set
-        {
-            std::string word = "</s>";
-            auto i = tmpWords.find(word);
-            if (i != tmpWords.end()) {
-                m_totalWords -= i->second.frequency;
-                tmpWords.erase(i);
-            }
-        }
+        // {
+        //     std::string word = "</s>";
+        //     auto i = tmpWords.find(word);
+        //     if (i != tmpWords.end()) {
+        //         m_totalWords -= i->second.frequency;
+        //         tmpWords.erase(i);
+        //     }
+        // }
         
         // prepare vector sorted by word frequencies
         std::vector<std::pair<std::string, std::size_t>> wordsFreq;
@@ -186,9 +188,11 @@ namespace w2v {
             // i.frequency = wordsFreq[0].second;
         }
         // fill index values
+        //wordsFreq.emplace(wordsFreq.begin(), 0, std::pair<std::string, std::size_t>("</s>", 0U)); // NOTE: insert dummy </s>
         for (std::size_t i = 0; i < wordsFreq.size(); ++i) {
             auto &w = tmpWords[wordsFreq[i].first];
-            m_words[wordsFreq[i].first] = wordData_t(i, w.frequency);
+            m_words[wordsFreq[i].first] = wordData_t(i, w.frequency); 
+            //Rcpp::Rcout << i << " " << wordsFreq[i].first << ": " << wordsFreq[i].second << "\n";
         }
         
         if (_statsCallback != nullptr) {
