@@ -64,11 +64,16 @@ namespace w2v {
     }
 
     void trainThread_t::worker(std::vector<float> &_trainMatrix) noexcept {
+        
         for (auto g = m_sharedData.trainSettings->iterations; g > 0; --g) {
+            //Rcpp::Rcout << "g: " << (int)g << "\n";
             bool exitFlag = false;
             std::size_t threadProcessedWords = 0;
             std::size_t prvThreadProcessedWords = 0;
-            m_wordReader->reset();
+
+            if (m_sharedData.fileMapper)
+                m_wordReader->reset();
+
             std::size_t h = range.first; // NOTE: only used for corpus
             auto wordsPerAllThreads = m_sharedData.trainSettings->iterations
                                       * m_sharedData.vocabulary->trainWords();
@@ -98,7 +103,6 @@ namespace w2v {
                 if (m_sharedData.fileMapper) {
                     while (true) {
                         std::string word;
-                        
                         if (!m_wordReader->nextWord(word)) {
                             exitFlag = true; // EOF or end of requested region
                             break;
@@ -119,10 +123,13 @@ namespace w2v {
                                 continue; // skip this word
                             }
                         }
+                        //if (h == 1)
+                        //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
                         sentence.push_back(wordData);
                     }
+                    
                 } else {
-                    Rcpp::Rcout << h << "\n";
+                    // Rcpp::Rcout << "h: " << h << "\n";
                     if (h > range.second) {
                         exitFlag = true; // EOF or end of requested region
                         break;
@@ -147,10 +154,10 @@ namespace w2v {
                                 continue; // skip this word
                             }
                         }
+                        //if (h == 1)
+                        //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
                         sentence.push_back(wordData);
-
                     }
-                    
                 }
                 if (m_sharedData.trainSettings->withSG) {
                     skipGram(sentence, _trainMatrix);
