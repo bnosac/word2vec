@@ -63,9 +63,9 @@ namespace w2v {
         // } else {
             m_matrixSize = sharedData.trainSettings->size * sharedData.vocabulary->size();
         //}
-        Rcpp::Rcout << "corpus->texts.size(): " << sharedData.corpus->texts.size() << "\n";
-        Rcpp::Rcout << "vocabulary->size(): " << sharedData.vocabulary->size() << "\n";
-        Rcpp::Rcout << "_trainSettings->threads: " << (int)_trainSettings->threads << "\n";
+        //Rcpp::Rcout << "corpus->texts.size(): " << sharedData.corpus->texts.size() << "\n";
+        //Rcpp::Rcout << "vocabulary->size(): " << sharedData.vocabulary->size() << "\n";
+        //Rcpp::Rcout << "_trainSettings->threads: " << (int)_trainSettings->threads << "\n";
         for (uint8_t i = 0; i < _trainSettings->threads; ++i) {
             // trainThread_t t(i, sharedData);
             // Rcpp::Rcout << "thread: " << (int)i << " from " << t.range.first << " to " << t.range.second << "\n"; 
