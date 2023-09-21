@@ -122,13 +122,13 @@ namespace w2v {
                         sentence.push_back(wordData);
                     }
                 } else {
+                    Rcpp::Rcout << h << "\n";
                     if (h > range.second) {
                         exitFlag = true; // EOF or end of requested region
                         break;
                     }
                     text_t text = m_sharedData.corpus->texts[h];
-                    //Rcpp::Rcout << range.first << " to " << range.second << "\n"; 
-                    /*
+                    
                     for (size_t i = 0; i < text.size(); i++) {
 
                         std::string word = text[i];
@@ -150,12 +150,12 @@ namespace w2v {
                         sentence.push_back(wordData);
 
                     }
-                    */
+                    
                 }
                 if (m_sharedData.trainSettings->withSG) {
-                    //skipGram(sentence, _trainMatrix);
+                    skipGram(sentence, _trainMatrix);
                 } else {
-                    //cbow(sentence, _trainMatrix);
+                    cbow(sentence, _trainMatrix);
                 }
                 h++; // move to next text
             }

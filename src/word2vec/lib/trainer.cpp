@@ -56,14 +56,22 @@ namespace w2v {
 
         sharedData.processedWords.reset(new std::atomic<std::size_t>(0));
         sharedData.alpha.reset(new std::atomic<float>(_trainSettings->alpha));
-
-        m_matrixSize = sharedData.trainSettings->size * sharedData.vocabulary->size();
+        
+        if (_corpus) {
+            // NOTE : corpus has no sentence delimiter
+            m_matrixSize = sharedData.trainSettings->size * sharedData.vocabulary->size() + 1;
+        } else {
+            m_matrixSize = sharedData.trainSettings->size * sharedData.vocabulary->size();
+        }
+        Rcpp::Rcout << "corpus->texts.size(): " << sharedData.corpus->texts.size() << "\n";
         Rcpp::Rcout << "vocabulary->size(): " << sharedData.vocabulary->size() << "\n";
         Rcpp::Rcout << "_trainSettings->threads: " << (int)_trainSettings->threads << "\n";
         for (uint8_t i = 0; i < _trainSettings->threads; ++i) {
-            Rcpp::Rcout << "thread: " << (int)i << "\n";
+            // trainThread_t t(i, sharedData);
+            // Rcpp::Rcout << "thread: " << (int)i << " from " << t.range.first << " to " << t.range.second << "\n"; 
             m_threads.emplace_back(new trainThread_t(i, sharedData));
         }
+        throw std::runtime_error("m_threads.emplace_back()");
     }
 
     void trainer_t::operator()(std::vector<float> &_trainMatrix) noexcept {
