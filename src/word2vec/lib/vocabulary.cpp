@@ -89,7 +89,11 @@ namespace w2v {
         if (wordsFreq.size() > 1) {
             std::sort(wordsFreq.begin() + 1, wordsFreq.end(), [](const std::pair<std::string, std::size_t> &_what,
                                                                  const std::pair<std::string, std::size_t> &_with) {
-                return _what.second > _with.second;
+                if(_what.second == _with.second){
+                    return _what.first > _with.first;
+                }else{
+                    return _what.second > _with.second;
+                }
             });
             // make delimiter frequency more then the most frequent word
             wordsFreq[0].second = wordsFreq[1].second + 1;
@@ -165,7 +169,7 @@ namespace w2v {
         // prepare vector sorted by word frequencies
         std::vector<std::pair<std::string, std::size_t>> wordsFreq;
         // delimiter is the first word
-        //wordsFreq.emplace_back(std::pair<std::string, std::size_t>("</s>", 0LU));
+        wordsFreq.emplace_back(std::pair<std::string, std::size_t>("</s>", 0LU));
         for (auto const &i:tmpWords) {
             if (i.second.frequency >= _minFreq) {
                 wordsFreq.emplace_back(std::pair<std::string, std::size_t>(i.first, i.second.frequency));
@@ -174,24 +178,29 @@ namespace w2v {
         }
         
         // sorting, from more frequent to less frequent, skip delimiter </s> (first word)
-        if (wordsFreq.size() > 0) {
-            std::sort(wordsFreq.begin() + 0, wordsFreq.end(), [](const std::pair<std::string, std::size_t> &_what,
+        if (wordsFreq.size() > 1) {
+            std::sort(wordsFreq.begin() + 1, wordsFreq.end(), [](const std::pair<std::string, std::size_t> &_what,
                                                                  const std::pair<std::string, std::size_t> &_with) {
-                return _what.second > _with.second;
+                if(_what.second == _with.second){
+                    return _what.first > _with.first;
+                }else{
+                    return _what.second > _with.second;
+                }
+                
             });
             // NOTE: should the index 0 be non word?
             // make delimiter frequency more then the most frequent word
-            // wordsFreq[0].second = wordsFreq[1].second + 1;
-            // // restore sentence delimiter
-            // auto &i = tmpWords["</s>"];
-            // i.word = "</s>";
-            // i.frequency = wordsFreq[0].second;
+            wordsFreq[0].second = wordsFreq[1].second + 1;
+            // restore sentence delimiter
+            auto &i = tmpWords["</s>"];
+            i.word = "</s>";
+            i.frequency = wordsFreq[0].second;
         }
         // fill index values
         //wordsFreq.emplace(wordsFreq.begin(), 0, std::pair<std::string, std::size_t>("</s>", 0U)); // NOTE: insert dummy </s>
         for (std::size_t i = 0; i < wordsFreq.size(); ++i) {
             auto &w = tmpWords[wordsFreq[i].first];
-            m_words[wordsFreq[i].first] = wordData_t(i, w.frequency); 
+            m_words[wordsFreq[i].first] = wordData_t(i, w.frequency);
             //Rcpp::Rcout << i << " " << wordsFreq[i].first << ": " << wordsFreq[i].second << "\n";
         }
         
