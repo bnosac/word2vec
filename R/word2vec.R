@@ -114,7 +114,7 @@ word2vec <- function(x,
                                ".\n?!"),
                      stopwords = character(),
                      threads = 1L,
-                     encoding = "UTF-8",
+                     encoding = getOption("encoding"),
                      ...){
     type <- match.arg(type)
     stopw <- stopwords
@@ -124,7 +124,7 @@ word2vec <- function(x,
     }
     file_stopwords <- tempfile()
     filehandle_stopwords <- file(file_stopwords, open = "wt", encoding = encoding)
-    writeLines(stopw, con = filehandle_stopwords)
+    writeLines(stopw, con = filehandle_stopwords, useBytes = TRUE)
     close(filehandle_stopwords)
     on.exit({
         if (file.exists(file_stopwords)) file.remove(file_stopwords)
@@ -138,7 +138,7 @@ word2vec <- function(x,
             if (file.exists(file_train)) file.remove(file_train)
         })
         filehandle_train <- file(file_train, open = "wt", encoding = encoding)
-        writeLines(text = x, con = filehandle_train)  
+        writeLines(text = x, con = filehandle_train, useBytes = TRUE)  
         close(filehandle_train)
     }
     #expTableSize <- 1000L

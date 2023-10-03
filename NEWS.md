@@ -1,3 +1,9 @@
+## CHANGES IN word2vec VERSION 0.3.5
+
+- the default setting for argument encoding for the word2vec function is now getOption("encoding")
+- writing text data to files before training now uses useBytes = TRUE (see issue #7)
+- C++ compiler in Makevars is now set to C++17 by CXX_STD = CXX17
+
 ## CHANGES IN word2vec VERSION 0.3.4
 
 - Remove LazyData from DESCRIPTION as there is no data to be lazy about

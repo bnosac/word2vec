@@ -18,7 +18,7 @@ word2vec(
   split = c(" \\n,.-!?:;/\\"#$\%&'()*+<=>@[]\\\\^_`{|}~\\t\\v\\f\\r", ".\\n?!"),
   stopwords = character(),
   threads = 1L,
-  encoding = "UTF-8",
+  encoding = getOption("encoding"),
   ...
 )
 }
