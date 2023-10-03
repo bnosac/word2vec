@@ -126,7 +126,7 @@ namespace w2v {
         };
         std::unordered_map<std::string, tmpWordData_t> tmpWords;
         std::string word;
-        off_t progressOffset = 0;
+        //off_t progressOffset = 0;
         
         for (auto &text:_corpus->texts) {
             for (auto &word:text) {
