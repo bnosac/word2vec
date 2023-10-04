@@ -19,6 +19,7 @@
   threads = 1L,
   split = c(" \\n,.-!?:;/\\"#$\%&'()*+<=>@[]\\\\^_`{|}~\\t\\v\\f\\r", ".\\n?!"),
   encoding = "UTF-8",
+  useBytes = TRUE,
   ...
 )
 }
@@ -52,6 +53,8 @@
 \item{encoding}{the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
 is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector.}
+
+\item{useBytes}{logical passed on to \code{\link{writeLines}} when writing the text and stopwords on disk before building the model. Defaults to \code{TRUE}.}
 
 \item{...}{further arguments passed on to the C++ function \code{w2v_train} - for expert use only}
 }

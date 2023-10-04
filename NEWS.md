@@ -6,6 +6,7 @@
   - The embeddings with the file-based (word2vec.character) and list-based approach (word2vec.list) are proven to be the same if the tokenisation is the same and the hyperparameters of the model are the same
   - In order to make sure the embeddings are the same the vocabulary had to be sorted according to the number of times it appears in the corpus as well as the token itself in case the number of times the 2 tokens occur is the same. This has as a consequence that the embeddings generated with version 0.4.0 will be slightly different as the ones obtained with package version < 0.4.0 due to a possible ordering difference in the vocabulary
   - examples provided in the help of ?word2vec and in the README
+- writing text data to files before training for the file-based approach (word2vec.character) now uses useBytes = TRUE (see issue #7)
 
 ## CHANGES IN word2vec VERSION 0.3.4
 

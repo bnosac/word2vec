@@ -134,6 +134,7 @@ word2vec <- function(x,
 #' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 #' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
 #' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector. 
+#' @param useBytes logical passed on to \code{\link{writeLines}} when writing the text and stopwords on disk before building the model. Defaults to \code{TRUE}.
 #' @export
 word2vec.character <- function(x,
                                type = c("cbow", "skip-gram"),
@@ -144,6 +145,7 @@ word2vec.character <- function(x,
                                split = c(" \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r", 
                                          ".\n?!"),
                                encoding = "UTF-8",
+                               useBytes = TRUE,
                                ...){
     type <- match.arg(type)
     stopw <- stopwords
@@ -153,7 +155,7 @@ word2vec.character <- function(x,
     }
     file_stopwords <- tempfile()
     filehandle_stopwords <- file(file_stopwords, open = "wt", encoding = encoding)
-    writeLines(stopw, con = filehandle_stopwords)
+    writeLines(stopw, con = filehandle_stopwords, useBytes = useBytes)
     close(filehandle_stopwords)
     on.exit({
         if (file.exists(file_stopwords)) file.remove(file_stopwords)
@@ -167,7 +169,7 @@ word2vec.character <- function(x,
             if (file.exists(file_train)) file.remove(file_train)
         })
         filehandle_train <- file(file_train, open = "wt", encoding = encoding)
-        writeLines(text = x, con = filehandle_train)  
+        writeLines(text = x, con = filehandle_train, useBytes = useBytes)  
         close(filehandle_train)
     }
     #expTableSize <- 1000L
