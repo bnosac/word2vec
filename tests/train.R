@@ -4,11 +4,11 @@ if(require(quanteda, quietly = TRUE)){
     library(quanteda) 
     data("data_corpus_inaugural", package = "quanteda")
     corp <- data_corpus_inaugural %>% 
-      corpus_reshape()
+      corpus_reshape(to = "sentences")
     toks <- tokens(corp, remove_punct = TRUE, remove_symbols = TRUE)
     lis <- as.list(toks)
     txt <- stringi::stri_c_list(lis, " ")
-    x   <- as.character(data_corpus_inaugural)
+    x   <- as.character(corp)
 }else if(require(tokenizers.bpe, quietly = TRUE)){
     library(tokenizers.bpe)
     data(belgium_parliament, package = "tokenizers.bpe")
@@ -42,7 +42,7 @@ if(require(microbenchmark, quietly = TRUE)){
     microbenchmark::microbenchmark(
         "lis" = word2vec(lis, dim = 50, iter = 5, min_count = 5,
                          verbose = FALSE, threads = 10),
-        "txt" = word2vec(txt, dim = 50, iter = 5, split = c("[ \n]", "\n"), min_count = 5,
+        "txt" = word2vec(x, dim = 50, iter = 5, split = c("[ \n]", "\n"), min_count = 5,
                          verbose = FALSE, threads = 10),
         times = 10
     )
