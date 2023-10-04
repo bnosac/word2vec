@@ -1,7 +1,7 @@
 Package: word2vec
 Type: Package
 Title: Distributed Representations of Words
-Version: 0.3.4
+Version: 0.4.0
 Authors@R: c(
     person('Jan', 'Wijffels', role = c('aut', 'cre', 'cph'), email = 'jwijffels@bnosac.be', comment = "R wrapper"), 
     person('Kohei', 'Watanabe', role = 'aut', email = 'watanabe.kohei@gmail.com', comment = c(ORCID = '0000-0001-6519-5265')), 
