@@ -205,6 +205,7 @@ word2vec.list <- function(x,
                           stopwords = character(),
                           threads = 1L,
                           ...){
+    x <- lapply(x, as.character)
     type <- match.arg(type)
     stopwords <- as.character(stopwords)
     model <- file.path(tempdir(), "w2v.bin")

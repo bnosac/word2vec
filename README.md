@@ -198,6 +198,68 @@ predict(model, newdata = wv, type = "nearest", top_n = 3)
  colored  0.9480994    3
 ```
 
+### Integration with ...
+
+#### quanteda
+
+- You can build a word2vec model by providing a tokenised list
+
+```{r}
+library(quanteda)
+library(word2vec)
+data("data_corpus_inaugural", package = "quanteda")
+toks <- data_corpus_inaugural %>% 
+    corpus_reshape(to = "sentences") %>%
+    tokens(remove_punct = TRUE, remove_symbols = TRUE) %>%
+    tokens_tolower() %>%
+    as.list()
+
+set.seed(54321)
+model <- word2vec(toks, dim = 25, iter = 20, min_count = 3, type = "skip-gram", lr = 0.05)
+emb   <- as.matrix(model)
+predict(model, c("freedom", "constitution", "president"), type = "nearest", top_n = 5)
+$freedom
+   term1       term2 similarity rank
+ freedom       human  0.9094619    1
+ freedom         man  0.9001195    2
+ freedom        life  0.8840834    3
+ freedom generations  0.8676646    4
+ freedom     mankind  0.8632550    5
+
+$constitution
+        term1          term2 similarity rank
+ constitution constitutional  0.8814662    1
+ constitution     conformity  0.8810275    2
+ constitution      authority  0.8786194    3
+ constitution     prescribed  0.8768463    4
+ constitution         states  0.8661923    5
+
+$president
+     term1    term2 similarity rank
+ president  clinton  0.9552274    1
+ president   clergy  0.9426718    2
+ president   carter  0.9386149    3
+ president    chief  0.9377645    4
+ president reverend  0.9347451    5
+```
+
+#### byte-pair encoding tokenizers (e.g. tokenizers.bpe/sentencepiece)
+
+- You can build a word2vec model by providing a tokenised list of token id's or subwords in order to feed the embeddings of these into deep learning models
+
+```{r}
+library(tokenizers.bpe)
+library(word2vec)
+data(belgium_parliament, package = "tokenizers.bpe")
+x <- subset(belgium_parliament, language == "french")
+x <- x$text
+tokeniser <- bpe(x, coverage = 0.999, vocab_size = 1000, threads = 1)
+toks      <- bpe_encode(tokeniser, x = x, type = "subwords")
+toks      <- bpe_encode(tokeniser, x = x, type = "ids")
+model     <- word2vec(toks, dim = 25, iter = 20, min_count = 3, type = "skip-gram", lr = 0.05)
+emb       <- as.matrix(model)
+```
+
 
 ## Support in text mining
 
