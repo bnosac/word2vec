@@ -9,19 +9,26 @@ if(require(quanteda, quietly = TRUE)){
     lis <- as.list(toks)
     txt <- stringi::stri_c_list(lis, " ")
     x   <- as.character(corp)
+    x   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
+    lis <- strsplit(x, split = " ")
 }else if(require(tokenizers.bpe, quietly = TRUE)){
     library(tokenizers.bpe)
     data(belgium_parliament, package = "tokenizers.bpe")
-    x <- belgium_parliament$text
+    x <- subset(belgium_parliament, language == "french")
+    x <- x$text
+    model <- bpe(x, coverage = 0.999, vocab_size = 5000, threads = 1)
+    lis <- bpe_encode(model, x = x, type = "ids")
+    lis <- lapply(lis, as.character)
+    x   <- sapply(lis, paste, collapse = " ")
 }else if(require(udpipe, quietly = TRUE)){
     library(udpipe)
     data(brussels_reviews, package = "udpipe")
-    x <- brussels_reviews$feedback
+    x   <- brussels_reviews$feedback
+    x   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
+    lis <- strsplit(x, split = " ")
 }
-x   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
 
 # list-based approach
-lis <- strsplit(x, split = " ")
 set.seed(123456789)
 mod_lis <- word2vec(lis, dim = 50, iter = 20, min_count = 3, type = "cbow", lr = 0.01)
 emb_lis <- as.matrix(mod_lis)
