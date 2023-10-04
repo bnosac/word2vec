@@ -1,13 +1,14 @@
 library(word2vec)
 
-if(require(quanteda, quietly = TRUE)){
+if(require(quanteda, quietly = TRUE) && require(stringi, quietly = TRUE)){
     library(quanteda) 
+    library(stringi)
     data("data_corpus_inaugural", package = "quanteda")
     corp <- data_corpus_inaugural %>% 
       corpus_reshape(to = "sentences")
     toks <- tokens(corp, remove_punct = TRUE, remove_symbols = TRUE)
     lis <- as.list(toks)
-    txt <- stringi::stri_c_list(lis, " ")
+    txt <- stri_c_list(lis, " ")
     x   <- as.character(corp)
     x   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
     lis <- strsplit(x, split = " ")
@@ -45,7 +46,7 @@ setdiff(summary(mod_lis), summary(mod_txt))
 all.equal(summary(mod_lis), summary(mod_txt))
 all.equal(emb_lis, emb_txt)
 
-if(require(microbenchmark, quietly = TRUE)){
+if(require(microbenchmark, quietly = TRUE) && FALSE){
     microbenchmark::microbenchmark(
         "lis" = word2vec(lis, dim = 50, iter = 5, min_count = 5,
                          verbose = FALSE, threads = 10),
