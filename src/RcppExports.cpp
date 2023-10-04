@@ -5,10 +5,6 @@
 
 using namespace Rcpp;
 
-#ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
-Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
-#endif
 
 // w2v_train
 Rcpp::List w2v_train(Rcpp::List texts_, Rcpp::CharacterVector stopWords_, std::string trainFile, std::string modelFile, std::string stopWordsFile, uint16_t minWordFreq, uint16_t size, uint8_t window, uint16_t expTableSize, uint8_t expValueMax, float sample, bool withHS, uint8_t negative, uint8_t threads, uint8_t iterations, float alpha, bool withSG, std::string wordDelimiterChars, std::string endOfSentenceChars, bool verbose, bool normalize);
