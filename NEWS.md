@@ -1,6 +1,6 @@
 ## CHANGES IN word2vec VERSION 0.4.0
 
-- C++ compiler in Makevars is now set to C++17 by CXX_STD = CXX17
+- Drop C++11 specification in Makevars
 - Building a word2vec model is now possible by providing a list of tokenised sentences (issue #14)
   - word2vec is now a generic function with 2 implemented methods: word2vec.character and word2vec.list
   - The embeddings with the file-based (word2vec.character) and list-based approach (word2vec.list) are proven to be the same if the tokenisation is the same and the hyperparameters of the model are the same
