@@ -42,19 +42,19 @@ lookslike <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
 lookslike
 $bus
  term1  term2 similarity rank
-   bus   voet  0.9891888    1
-   bus gratis  0.9886125    2
-   bus   tram  0.9885917    3
-   bus    ben  0.9844405    4
-   bus   auto  0.9780166    5
+   bus gratis  0.9959141    1
+   bus   tram  0.9898559    2
+   bus   voet  0.9882312    3
+   bus    ben  0.9854795    4
+   bus   auto  0.9839599    5
 
 $toilet
-  term1     term2 similarity rank
- toilet  koelkast  0.9856260    1
- toilet    douche  0.9830786    2
- toilet      wifi  0.9779336    3
- toilet voldoende  0.9723337    4
- toilet    werkte  0.9677669    5
+  term1       term2 similarity rank
+ toilet    koelkast  0.9870380    1
+ toilet      douche  0.9850463    2
+ toilet      werkte  0.9843599    3
+ toilet slaapkamers  0.9802811    4
+ toilet       eigen  0.9759347    5
 ```
 
 - Save the model and read it back in and do something with it
