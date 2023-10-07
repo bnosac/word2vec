@@ -45,7 +45,7 @@
 
 \item{threads}{number of CPU threads to use. Defaults to 1.}
 
-\item{...}{further arguments passed on to the C++ function \code{w2v_train} - for expert use only}
+\item{...}{further arguments passed on to the methods \code{\link{word2vec.character}}, \code{\link{word2vec.list}} as well as the C++ function \code{w2v_train} - for expert use only}
 }
 \value{
 an object of class \code{w2v_trained} which is a list with elements 
@@ -70,22 +70,15 @@ Some advice on the optimal set of parameters to use for training as defined by M
 \item{argument window: for skip-gram usually around 10, for cbow around 5}
 \item{argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)}
 }
-Some notes on the tokenisation
-\itemize{
-\item{If you provide to \code{x} a list, each list element should correspond to a sentence (or what you consider as a sentence) and should contain a character vector of tokens.}
-\item{If you provide to \code{x} a character vector or the path to the file on disk, the tokenisation into words depends on the first element provided in \code{split} and the tokenisation into sentences depends on the second element provided in \code{split} when passed on to \code{\link{word2vec.character}}}
-}
 }
 \examples{
 \dontshow{if(require(udpipe))\{}
 library(udpipe)
-## Take data and standardise it a bit
 data(brussels_reviews, package = "udpipe")
-x <- subset(brussels_reviews, language == "nl")
-x <- tolower(x$feedback)
-
-## Build the model get word embeddings and nearest neighbours
-model <- word2vec(x = x, dim = 15, iter = 20)
+x     <- subset(brussels_reviews, language == "nl")
+x     <- tolower(x$feedback)
+toks  <- strsplit(x, split = "[[:space:][:punct:]]+")
+model <- word2vec(x = toks, dim = 15, iter = 20)
 emb   <- as.matrix(model)
 head(emb)
 emb   <- predict(model, c("bus", "toilet", "unknownword"), type = "embedding")
@@ -93,68 +86,18 @@ emb
 nn    <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
 nn
 
-## Get vocabulary
-vocab   <- summary(model, type = "vocabulary")
-
-# Do some calculations with the vectors and find similar terms to these
-emb     <- as.matrix(model)
-vector  <- emb["buurt", ] - emb["rustige", ] + emb["restaurants", ]
-predict(model, vector, type = "nearest", top_n = 10)
-
-vector  <- emb["gastvrouw", ] - emb["gastvrij", ]
-predict(model, vector, type = "nearest", top_n = 5)
-
-vectors <- emb[c("gastheer", "gastvrouw"), ]
-vectors <- rbind(vectors, avg = colMeans(vectors))
-predict(model, vectors, type = "nearest", top_n = 10)
-
-## Save the model to hard disk
-path <- "mymodel.bin"
-\dontshow{
-path <- tempfile(pattern = "w2v", fileext = ".bin")
-}
-write.word2vec(model, file = path)
-model <- read.word2vec(path)
-
-\dontshow{
-file.remove(path)
-}
 ## 
-## Example of word2vec with a list of tokens 
+## Example of word2vec with a list of tokens
 ## which gives the same embeddings as with a similarly tokenised character vector of texts 
 ## 
 txt   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
 table(unlist(strsplit(txt, "")))
-set.seed(1234)
 toks  <- strsplit(txt, split = " ")
-model <- word2vec(x = toks, dim = 15, iter = 20)
-emb   <- as.matrix(model)
 set.seed(1234)
-model <- word2vec(x = txt, dim = 15, iter = 20, split = c(" \n\r", "\n\r"))
-all.equal(emb, as.matrix(model))
-
-## 
-## Example getting word embeddings 
-##   which are different depending on the parts of speech tag
-## Look to the help of the udpipe R package 
-##   to get parts of speech tags on text
-## 
-library(udpipe)
-data(brussels_reviews_anno, package = "udpipe")
-x <- subset(brussels_reviews_anno, language == "fr")
-x <- subset(x, grepl(xpos, pattern = paste(LETTERS, collapse = "|")))
-x$text <- sprintf("\%s/\%s", x$lemma, x$xpos)
-x <- subset(x, !is.na(lemma))
-x <- paste.data.frame(x, term = "text", group = "doc_id", collapse = " ")
-x <- x$text
-
-model <- word2vec(x = x, dim = 15, iter = 20, split = c(" ", ".\n?!"))
-emb   <- as.matrix(model)
-nn    <- predict(model, c("cuisine/NN", "rencontrer/VB"), type = "nearest")
-nn
-nn    <- predict(model, c("accueillir/VBN", "accueillir/VBG"), type = "nearest")
-nn
-
+modela <- word2vec(x = toks, dim = 15, iter = 20)
+set.seed(1234)
+modelb <- word2vec(x = txt, dim = 15, iter = 20, split = c(" \n\r", "\n\r"))
+all.equal(as.matrix(modela), as.matrix(modelb))
 \dontshow{\} # End of main if statement running only if the required packages are installed}
 }
 \references{

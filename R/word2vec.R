@@ -12,7 +12,7 @@
 #' @param min_count integer indicating the number of time a word should occur to be considered as part of the training vocabulary. Defaults to 5.
 #' @param stopwords a character vector of stopwords to exclude from training 
 #' @param threads number of CPU threads to use. Defaults to 1.
-#' @param ... further arguments passed on to the C++ function \code{w2v_train} - for expert use only
+#' @param ... further arguments passed on to the methods \code{\link{word2vec.character}}, \code{\link{word2vec.list}} as well as the C++ function \code{w2v_train} - for expert use only
 #' @return an object of class \code{w2v_trained} which is a list with elements 
 #' \itemize{
 #' \item{model: a Rcpp pointer to the model}
@@ -32,9 +32,10 @@
 #' \item{argument window: for skip-gram usually around 10, for cbow around 5}
 #' \item{argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)}
 #' }
+#' @note
 #' Some notes on the tokenisation
 #' \itemize{
-#' \item{If you provide to \code{x} a list, each list element should correspond to a sentence (or what you consider as a sentence) and should contain a character vector of tokens.}
+#' \item{If you provide to \code{x} a list, each list element should correspond to a sentence (or what you consider as a sentence) and should contain a character vector of tokens. The word2vec model is then executed using \code{\link{word2vec.list}}}
 #' \item{If you provide to \code{x} a character vector or the path to the file on disk, the tokenisation into words depends on the first element provided in \code{split} and the tokenisation into sentences depends on the second element provided in \code{split} when passed on to \code{\link{word2vec.character}}}
 #' }
 #' @seealso \code{\link{predict.word2vec}}, \code{\link{as.matrix.word2vec}}, \code{\link{word2vec}}, \code{\link{word2vec.character}}, \code{\link{word2vec.list}}
@@ -84,17 +85,14 @@
 #' }
 #' ## 
 #' ## Example of word2vec with a list of tokens 
-#' ## which gives the same embeddings as with a similarly tokenised character vector of texts 
 #' ## 
-#' txt   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
-#' table(unlist(strsplit(txt, "")))
-#' set.seed(1234)
-#' toks  <- strsplit(txt, split = " ")
+#' toks  <- strsplit(x, split = "[[:space:][:punct:]]+")
 #' model <- word2vec(x = toks, dim = 15, iter = 20)
 #' emb   <- as.matrix(model)
-#' set.seed(1234)
-#' model <- word2vec(x = txt, dim = 15, iter = 20, split = c(" \n\r", "\n\r"))
-#' all.equal(emb, as.matrix(model))
+#' emb   <- predict(model, c("bus", "toilet", "unknownword"), type = "embedding")
+#' emb
+#' nn    <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
+#' nn
 #' 
 #' ## 
 #' ## Example getting word embeddings 
@@ -129,7 +127,7 @@ word2vec <- function(x,
     UseMethod("word2vec")
 }
 
-#' @inherit word2vec
+#' @inherit word2vec title description params details seealso return references examples
 #' @param split a character vector of length 2 where the first element indicates how to split words and the second element indicates how to split sentences in \code{x}
 #' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
 #' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
@@ -198,8 +196,36 @@ word2vec.character <- function(x,
     model
 }
 
-#' @inherit word2vec
+#' @inherit word2vec title description params details seealso return references
 #' @export
+#' @examples 
+#' \dontshow{if(require(udpipe))\{}
+#' library(udpipe)
+#' data(brussels_reviews, package = "udpipe")
+#' x     <- subset(brussels_reviews, language == "nl")
+#' x     <- tolower(x$feedback)
+#' toks  <- strsplit(x, split = "[[:space:][:punct:]]+")
+#' model <- word2vec(x = toks, dim = 15, iter = 20)
+#' emb   <- as.matrix(model)
+#' head(emb)
+#' emb   <- predict(model, c("bus", "toilet", "unknownword"), type = "embedding")
+#' emb
+#' nn    <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
+#' nn
+#' 
+#' ## 
+#' ## Example of word2vec with a list of tokens
+#' ## which gives the same embeddings as with a similarly tokenised character vector of texts 
+#' ## 
+#' txt   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
+#' table(unlist(strsplit(txt, "")))
+#' toks  <- strsplit(txt, split = " ")
+#' set.seed(1234)
+#' modela <- word2vec(x = toks, dim = 15, iter = 20)
+#' set.seed(1234)
+#' modelb <- word2vec(x = txt, dim = 15, iter = 20, split = c(" \n\r", "\n\r"))
+#' all.equal(as.matrix(modela), as.matrix(modelb))
+#' \dontshow{\} # End of main if statement running only if the required packages are installed}
 word2vec.list <- function(x,
                           type = c("cbow", "skip-gram"),
                           dim = 50, window = ifelse(type == "cbow", 5L, 10L), 

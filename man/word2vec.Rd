@@ -45,7 +45,7 @@ word2vec(
 
 \item{threads}{number of CPU threads to use. Defaults to 1.}
 
-\item{...}{further arguments passed on to the C++ function \code{w2v_train} - for expert use only}
+\item{...}{further arguments passed on to the methods \code{\link{word2vec.character}}, \code{\link{word2vec.list}} as well as the C++ function \code{w2v_train} - for expert use only}
 }
 \value{
 an object of class \code{w2v_trained} which is a list with elements 
@@ -70,9 +70,11 @@ Some advice on the optimal set of parameters to use for training as defined by M
 \item{argument window: for skip-gram usually around 10, for cbow around 5}
 \item{argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)}
 }
+}
+\note{
 Some notes on the tokenisation
 \itemize{
-\item{If you provide to \code{x} a list, each list element should correspond to a sentence (or what you consider as a sentence) and should contain a character vector of tokens.}
+\item{If you provide to \code{x} a list, each list element should correspond to a sentence (or what you consider as a sentence) and should contain a character vector of tokens. The word2vec model is then executed using \code{\link{word2vec.list}}}
 \item{If you provide to \code{x} a character vector or the path to the file on disk, the tokenisation into words depends on the first element provided in \code{split} and the tokenisation into sentences depends on the second element provided in \code{split} when passed on to \code{\link{word2vec.character}}}
 }
 }
@@ -121,17 +123,14 @@ file.remove(path)
 }
 ## 
 ## Example of word2vec with a list of tokens 
-## which gives the same embeddings as with a similarly tokenised character vector of texts 
 ## 
-txt   <- txt_clean_word2vec(x, ascii = TRUE, alpha = TRUE, tolower = TRUE, trim = TRUE)
-table(unlist(strsplit(txt, "")))
-set.seed(1234)
-toks  <- strsplit(txt, split = " ")
+toks  <- strsplit(x, split = "[[:space:][:punct:]]+")
 model <- word2vec(x = toks, dim = 15, iter = 20)
 emb   <- as.matrix(model)
-set.seed(1234)
-model <- word2vec(x = txt, dim = 15, iter = 20, split = c(" \n\r", "\n\r"))
-all.equal(emb, as.matrix(model))
+emb   <- predict(model, c("bus", "toilet", "unknownword"), type = "embedding")
+emb
+nn    <- predict(model, c("bus", "toilet"), type = "nearest", top_n = 5)
+nn
 
 ## 
 ## Example getting word embeddings 
