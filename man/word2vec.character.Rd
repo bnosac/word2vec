@@ -148,10 +148,9 @@ x <- subset(brussels_reviews_anno, language == "fr")
 x <- subset(x, grepl(xpos, pattern = paste(LETTERS, collapse = "|")))
 x$text <- sprintf("\%s/\%s", x$lemma, x$xpos)
 x <- subset(x, !is.na(lemma))
-x <- paste.data.frame(x, term = "text", group = "doc_id", collapse = " ")
-x <- x$text
+x <- split(x$text, list(x$doc_id, x$sentence_id))
 
-model <- word2vec(x = x, dim = 15, iter = 20, split = c(" ", ".\n?!"))
+model <- word2vec(x = x, dim = 15, iter = 20)
 emb   <- as.matrix(model)
 nn    <- predict(model, c("cuisine/NN", "rencontrer/VB"), type = "nearest")
 nn
