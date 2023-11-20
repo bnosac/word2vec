@@ -75,7 +75,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   std::size_t vocWords;
   std::size_t trainWords;
   std::size_t totalWords;
-  if (verbose) {
+  if (verbose) { // NOTE: consider removing progress bar
     Progress p(100, true);
     trained = model->train(trainSettings, corpus, 
                            trainFile, stopWordsFile, // NOTE: remove
@@ -112,7 +112,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
                                         << _percent << "%"
                                         << std::flush;
                               */
-                             p.update(50+(_percent/2));
+                             p.update(50 + (_percent / 2));
                            }
     );
     //std::cout << std::endl;
