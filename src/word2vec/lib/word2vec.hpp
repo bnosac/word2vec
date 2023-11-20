@@ -19,8 +19,8 @@
 #include <cmath>
 #include <stdexcept>
 
-typedef std::vector<std::string> words_t;
-typedef std::vector<std::string> text_t;
+typedef std::vector<int> words_t;
+typedef std::vector<int> text_t;
 typedef std::vector<text_t> texts_t;
 
 namespace w2v {
@@ -31,11 +31,15 @@ namespace w2v {
     class corpus_t final {
     public:
         texts_t texts;
+        words_t types;
         words_t stopWords;
         
         // Constructors
         corpus_t(): texts() {}
-        corpus_t(texts_t _texts, words_t _stopWords): texts(_texts), stopWords(_stopWords) {}
+        // corpus_t(texts_t _texts, words_t _types, words_t _stopWords): 
+        //     texts(_texts), types(_types), stopWords(_stopWords) {}
+        corpus_t(texts_t _texts, words_t _stopWords): 
+            texts(_texts), stopWords(_stopWords) {}
         
     };
     
