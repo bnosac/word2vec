@@ -11,10 +11,8 @@
 // [[Rcpp::depends(RcppProgress)]]
 // [[Rcpp::export]]
 Rcpp::List w2v_train(Rcpp::List texts_, 
-                     Rcpp::CharacterVector stopWords_, 
-                     std::string trainFile, // NOTE: remove
+                     Rcpp::IntegerVector stopWords_, 
                      std::string modelFile, 
-                     std::string stopWordsFile, // NOTE: remove
                      uint16_t minWordFreq = 5,
                      uint16_t size = 100,
                      uint8_t window = 5,
@@ -78,9 +76,9 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   if (verbose) { // NOTE: consider removing progress bar
     Progress p(100, true);
     trained = model->train(trainSettings, corpus, 
-                           trainFile, stopWordsFile, // NOTE: remove
+                           //trainFile, stopWordsFile, // NOTE: remove
                            [&p] (float _percent) {
-                             p.update(_percent/2);
+                             p.update(_percent / 2);
                              /*
                               std::cout << "\rParsing train data... "
                                         << std::fixed << std::setprecision(2)
@@ -118,7 +116,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
     //std::cout << std::endl;
   } else {
     trained = model->train(trainSettings, corpus, 
-                           trainFile, stopWordsFile, // NOTE: remove
+                           //trainFile, stopWordsFile, // NOTE: remove
                            nullptr, 
                            [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
                              /*
@@ -153,8 +151,8 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   Rcpp::List out = Rcpp::List::create(
     Rcpp::Named("model") = model,
     Rcpp::Named("data") = Rcpp::List::create(
-      Rcpp::Named("file") = trainFile,
-      Rcpp::Named("stopwords") = stopWordsFile,
+      //Rcpp::Named("file") = trainFile,
+      //Rcpp::Named("stopwords") = stopWordsFile,
       Rcpp::Named("n") = totalWords,
       Rcpp::Named("n_vocabulary") = trainWords
     ),
