@@ -13,7 +13,7 @@ namespace w2v {
     trainer_t::trainer_t(const std::shared_ptr<trainSettings_t> &_trainSettings,
                          const std::shared_ptr<vocabulary_t> &_vocabulary,
                          const std::shared_ptr<corpus_t> &_corpus,
-                         const std::shared_ptr<fileMapper_t> &_fileMapper, // NOTE: remove
+                         //const std::shared_ptr<fileMapper_t> &_fileMapper, // NOTE: remove
                          std::function<void(float, float)> _progressCallback): m_threads() {
         trainThread_t::sharedData_t sharedData;
 
@@ -26,12 +26,15 @@ namespace w2v {
             throw std::runtime_error("vocabulary object is not initialized");
         }
         sharedData.vocabulary = _vocabulary;
-
-        if (!_corpus && !_fileMapper) {
-            throw std::runtime_error("corpus and file mapper objects are not initialized");
+        
+        if (!_corpus) {
+            throw std::runtime_error("corpus is objects is not initialized");
         }
-        sharedData.corpus = _corpus;
-        sharedData.fileMapper = _fileMapper;
+        // if (!_corpus && !_fileMapper) {
+        //     throw std::runtime_error("corpus and file mapper objects are not initialized");
+        // }
+        // sharedData.corpus = _corpus;
+        // sharedData.fileMapper = _fileMapper;
         
         sharedData.bpWeights.reset(new std::vector<float>(_trainSettings->size * _vocabulary->size(), 0.0f));
         sharedData.expTable.reset(new std::vector<float>(_trainSettings->expTableSize));

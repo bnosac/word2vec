@@ -19,8 +19,10 @@
 #include <cmath>
 #include <stdexcept>
 
-typedef std::vector<int> words_t;
-typedef std::vector<int> text_t;
+typedef std::vector<std::string> words_t;
+typedef std::vector<std::string> text_t;
+// typedef std::vector<int> words_t;
+// typedef std::vector<int> text_t;
 typedef std::vector<text_t> texts_t;
 
 namespace w2v {
@@ -295,8 +297,8 @@ namespace w2v {
         */
         bool train(const trainSettings_t &_trainSettings,
                    const corpus_t &_corpus,
-                   const std::string &_trainFile, // NOTE: remove
-                   const std::string &_stopWordsFile, // NOTE: remove
+                   //const std::string &_trainFile, // NOTE: remove
+                   //const std::string &_stopWordsFile, // NOTE: remove
                    vocabularyProgressCallback_t _vocabularyProgressCallback,
                    vocabularyStatsCallback_t _vocabularyStatsCallback,
                    trainProgressCallback_t _trainProgressCallback) noexcept;
