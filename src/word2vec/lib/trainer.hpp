@@ -15,7 +15,7 @@
 #include <stdexcept>
 
 #include "word2vec.hpp"
-#include "wordReader.hpp"
+//#include "wordReader.hpp"
 #include "vocabulary.hpp"
 #include "trainThread.hpp"
 

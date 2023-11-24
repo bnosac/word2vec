@@ -11,8 +11,8 @@
 // [[Rcpp::depends(RcppProgress)]]
 // [[Rcpp::export]]
 Rcpp::List w2v_train(Rcpp::List texts_, 
-                     Rcpp::IntegerVector stopWords_, 
-                     std::string modelFile, 
+                     Rcpp::CharacterVector stopWords_, 
+                     std::string modelFile = "", 
                      uint16_t minWordFreq = 5,
                      uint16_t size = 100,
                      uint8_t window = 5,
@@ -25,8 +25,6 @@ Rcpp::List w2v_train(Rcpp::List texts_,
                      uint8_t iterations = 5,
                      float alpha = 0.05,
                      bool withSG = false,
-                     std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r",
-                     std::string endOfSentenceChars = ".\n?!",
                      bool verbose = false,
                      bool normalize = true) {
   
@@ -65,8 +63,8 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   trainSettings.iterations = iterations;
   trainSettings.alpha = alpha;
   trainSettings.withSG = withSG;
-  trainSettings.wordDelimiterChars = wordDelimiterChars;
-  trainSettings.endOfSentenceChars = endOfSentenceChars;
+  //trainSettings.wordDelimiterChars = wordDelimiterChars;
+  //trainSettings.endOfSentenceChars = endOfSentenceChars;
   Rcpp::XPtr<w2v::w2vModel_t> model(new w2v::w2vModel_t(), true);
   bool trained;
   
@@ -170,9 +168,9 @@ Rcpp::List w2v_train(Rcpp::List texts_,
       Rcpp::Named("negative") = negative,
       Rcpp::Named("sample") = sample,
       Rcpp::Named("expTableSize") = expTableSize,
-      Rcpp::Named("expValueMax") = expValueMax,
-      Rcpp::Named("split_words") = wordDelimiterChars,
-      Rcpp::Named("split_sents") = endOfSentenceChars
+      Rcpp::Named("expValueMax") = expValueMax
+      //Rcpp::Named("split_words") = wordDelimiterChars,
+      //Rcpp::Named("split_sents") = endOfSentenceChars
     )
   );
   out.attr("class") = "word2vec_trained";
@@ -407,6 +405,7 @@ Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize,
   return embedding_default;
 }
 
+/* NOTE: temporarily disabled
 
 
 // [[Rcpp::export]]
@@ -463,3 +462,5 @@ Rcpp::DataFrame d2vec_nearest(SEXP ptr_w2v, SEXP ptr_d2v, Rcpp::StringVector x,
   );
   return out;
 }
+
+ */

@@ -13,7 +13,7 @@ namespace w2v {
             m_sharedData(_sharedData), m_randomDevice(), m_randomGenerator(m_randomDevice()),
             m_rndWindowShift(0, static_cast<short>((m_sharedData.trainSettings->window - 1))),
             m_downSampling(), m_nsDistribution(), m_hiddenLayerVals(), m_hiddenLayerErrors(),
-            m_wordReader(), m_thread() {
+            m_thread() {
 
         if (!m_sharedData.trainSettings) {
             throw std::runtime_error("train settings are not initialized");
@@ -42,25 +42,16 @@ namespace w2v {
             m_hiddenLayerVals.reset(new std::vector<float>(m_sharedData.trainSettings->size));
         }
 
-        if (!m_sharedData.corpus && !m_sharedData.fileMapper) {
-            throw std::runtime_error("corpus and file mapper objects are not initialized");
+        if (!m_sharedData.corpus) {
+            throw std::runtime_error("corpus object is not initialized");
         }
-        if (m_sharedData.fileMapper) {
-            auto shift = m_sharedData.fileMapper->size() / m_sharedData.trainSettings->threads;
-            auto startFrom = shift * _id;
-            auto stopAt = (_id == m_sharedData.trainSettings->threads - 1)
-                          ? (m_sharedData.fileMapper->size() - 1) : (shift * (_id + 1));
-            m_wordReader.reset(new wordReader_t<fileMapper_t>(*m_sharedData.fileMapper,
-                                                              m_sharedData.trainSettings->wordDelimiterChars,
-                                                              m_sharedData.trainSettings->endOfSentenceChars,
-                                                              startFrom, stopAt));
-        } else {
-            // NOTE: specify range for workers
-            auto n = m_sharedData.corpus->texts.size();
-            auto threads = m_sharedData.trainSettings->threads;
-            range = std::make_pair(floor((n / threads) * _id),
-                                   floor((n / threads) * (_id + 1)) - 1);
-        }
+        
+        // NOTE: specify range for workers
+        auto n = m_sharedData.corpus->texts.size();
+        auto threads = m_sharedData.trainSettings->threads;
+        range = std::make_pair(floor((n / threads) * _id),
+                               floor((n / threads) * (_id + 1)) - 1);
+        
     }
 
     void trainThread_t::worker(std::vector<float> &_trainMatrix) noexcept {
@@ -70,9 +61,6 @@ namespace w2v {
             bool exitFlag = false;
             std::size_t threadProcessedWords = 0;
             std::size_t prvThreadProcessedWords = 0;
-
-            if (m_sharedData.fileMapper)
-                m_wordReader->reset();
 
             std::size_t h = range.first; // NOTE: only used for corpus
             auto wordsPerAllThreads = m_sharedData.trainSettings->iterations
@@ -100,65 +88,37 @@ namespace w2v {
                 
                 // read sentence
                 std::vector<const vocabulary_t::wordData_t *> sentence;
-                if (m_sharedData.fileMapper) {
-                    while (true) {
-                        std::string word;
-                        if (!m_wordReader->nextWord(word)) {
-                            exitFlag = true; // EOF or end of requested region
-                            break;
-                        }
-                        if (word.empty()) {
-                            break; // end of sentence
-                        }
-                        
-                        auto wordData = m_sharedData.vocabulary->data(word);
-                        if (wordData == nullptr) {
-                            continue; // no such word
-                        }
-    
-                        threadProcessedWords++;
-    
-                        if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
-                            if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
-                                continue; // skip this word
-                            }
-                        }
-                        //if (h == 1)
-                        //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
-                        sentence.push_back(wordData);
-                    }
-                    
-                } else {
-                    // Rcpp::Rcout << "h: " << h << "\n";
-                    if (h > range.second) {
-                        exitFlag = true; // EOF or end of requested region
-                        break;
-                    }
-                    text_t text = m_sharedData.corpus->texts[h];
-                    
-                    for (size_t i = 0; i < text.size(); i++) {
-
-                        std::string word = text[i];
-                        if (word.empty()) {
-                            continue; // padding
-                        }
-                        auto wordData = m_sharedData.vocabulary->data(word);
-                        if (wordData == nullptr) {
-                            continue; // no such word
-                        }
-                        
-                        threadProcessedWords++;
-                        
-                        if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
-                            if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
-                                continue; // skip this word
-                            }
-                        }
-                        //if (h == 1)
-                        //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
-                        sentence.push_back(wordData);
-                    }
+                
+                // Rcpp::Rcout << "h: " << h << "\n";
+                if (h > range.second) {
+                    exitFlag = true; // EOF or end of requested region
+                    break;
                 }
+                text_t text = m_sharedData.corpus->texts[h];
+                
+                for (size_t i = 0; i < text.size(); i++) {
+
+                    std::string word = text[i];
+                    if (word.empty()) {
+                        continue; // padding
+                    }
+                    auto wordData = m_sharedData.vocabulary->data(word);
+                    if (wordData == nullptr) {
+                        continue; // no such word
+                    }
+                    
+                    threadProcessedWords++;
+                    
+                    if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
+                        if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
+                            continue; // skip this word
+                        }
+                    }
+                    //if (h == 1)
+                    //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
+                    sentence.push_back(wordData);
+                }
+                
                 if (m_sharedData.trainSettings->withSG) {
                     skipGram(sentence, _trainMatrix);
                 } else {
