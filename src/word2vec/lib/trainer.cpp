@@ -28,8 +28,10 @@ namespace w2v {
         sharedData.vocabulary = _vocabulary;
         
         if (!_corpus) {
-            throw std::runtime_error("corpus is objects is not initialized");
+            throw std::runtime_error("corpus is object is not initialized");
         }
+        sharedData.corpus = _corpus;
+        
         // if (!_corpus && !_fileMapper) {
         //     throw std::runtime_error("corpus and file mapper objects are not initialized");
         // }
