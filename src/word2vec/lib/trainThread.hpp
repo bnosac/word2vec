@@ -90,9 +90,9 @@ namespace w2v {
     private:
         void worker(std::vector<float> &_trainMatrix) noexcept;
 
-        inline void cbow(const std::vector<const vocabulary_t::wordData_t *> &_sentence,
+        inline void cbow(const std::vector<unsigned int> &_sentence,
                          std::vector<float> &_trainMatrix) noexcept;
-        inline void skipGram(const std::vector<const vocabulary_t::wordData_t *> &_sentence,
+        inline void skipGram(const std::vector<unsigned int> &_sentence,
                              std::vector<float> &_trainMatrix) noexcept;
         inline void  hierarchicalSoftmax(std::size_t _index,
                                          std::vector<float> &_hiddenLayer,

@@ -87,7 +87,7 @@ namespace w2v {
                 }
                 
                 // read sentence
-                std::vector<const vocabulary_t::wordData_t *> sentence;
+                std::vector<unsigned int> sentence;
                 
                 // Rcpp::Rcout << "h: " << h << "\n";
                 if (h > range.second) {
@@ -98,25 +98,26 @@ namespace w2v {
                 
                 for (size_t i = 0; i < text.size(); i++) {
 
-                    std::string word = text[i];
-                    if (word.empty()) {
+                    unsigned int word = text[i];
+                    if (word == 0) {
                         continue; // padding
                     }
-                    auto wordData = m_sharedData.vocabulary->data(word);
-                    if (wordData == nullptr) {
-                        continue; // no such word
-                    }
+                    // auto wordData = m_sharedData.vocabulary->data(word);
+                    // if (wordData == nullptr) {
+                    //     continue; // no such word
+                    // }
                     
                     threadProcessedWords++;
                     
                     if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
-                        if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
+                        //if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
+                        if ((*m_downSampling)(m_sharedData.corpus->frequency[word], m_randomGenerator)) {
                             continue; // skip this word
                         }
                     }
                     //if (h == 1)
                     //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
-                    sentence.push_back(wordData);
+                    sentence.push_back(word);
                 }
                 
                 if (m_sharedData.trainSettings->withSG) {
@@ -129,7 +130,7 @@ namespace w2v {
         }
     }
 
-    inline void trainThread_t::cbow(const std::vector<const vocabulary_t::wordData_t *> &_sentence,
+    inline void trainThread_t::cbow(const std::vector<unsigned int> &_sentence,
                                     std::vector<float> &_trainMatrix) noexcept {
         for (std::size_t i = 0; i < _sentence.size(); ++i) {
             // hidden layers initialized with 0 values
@@ -148,7 +149,7 @@ namespace w2v {
                     continue;
                 }
                 for (std::size_t k = 0; k < m_sharedData.trainSettings->size; ++k) {
-                    (*m_hiddenLayerVals)[k] += _trainMatrix[k + _sentence[posRndWindow]->index
+                    (*m_hiddenLayerVals)[k] += _trainMatrix[k + _sentence[posRndWindow]
                                                            * m_sharedData.trainSettings->size];
                 }
                 cw++;
@@ -161,9 +162,9 @@ namespace w2v {
             }
 
             if (m_sharedData.trainSettings->withHS) {
-                hierarchicalSoftmax(_sentence[i]->index, *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
+                hierarchicalSoftmax(_sentence[i], *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
             } else {
-                negativeSampling(_sentence[i]->index, *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
+                negativeSampling(_sentence[i], *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
             }
 
             // hidden -> in
@@ -177,14 +178,14 @@ namespace w2v {
                     continue;
                 }
                 for (std::size_t k = 0; k < m_sharedData.trainSettings->size; ++k) {
-                    _trainMatrix[k + _sentence[posRndWindow]->index * m_sharedData.trainSettings->size]
+                    _trainMatrix[k + _sentence[posRndWindow] * m_sharedData.trainSettings->size]
                             += (*m_hiddenLayerErrors)[k];
                 }
             }
         }
     }
 
-    inline void trainThread_t::skipGram(const std::vector<const vocabulary_t::wordData_t *> &_sentence,
+    inline void trainThread_t::skipGram(const std::vector<unsigned int> &_sentence,
                                         std::vector<float> &_trainMatrix) noexcept {
         for (std::size_t i = 0; i < _sentence.size(); ++i) {
             auto rndShift = m_rndWindowShift(m_randomGenerator);
@@ -198,15 +199,15 @@ namespace w2v {
                     continue;
                 }
                 // shift to the selected word vector in the matrix
-                auto shift = _sentence[posRndWindow]->index * m_sharedData.trainSettings->size;
+                auto shift = _sentence[posRndWindow] * m_sharedData.trainSettings->size;
 
                 // hidden layer initialized with 0 values
                 std::memset(m_hiddenLayerErrors->data(), 0, m_hiddenLayerErrors->size() * sizeof(float));
 
                 if (m_sharedData.trainSettings->withHS) {
-                    hierarchicalSoftmax(_sentence[i]->index, (*m_hiddenLayerErrors), _trainMatrix, shift);
+                    hierarchicalSoftmax(_sentence[i], (*m_hiddenLayerErrors), _trainMatrix, shift);
                 } else {
-                    negativeSampling(_sentence[i]->index, (*m_hiddenLayerErrors), _trainMatrix, shift);
+                    negativeSampling(_sentence[i], (*m_hiddenLayerErrors), _trainMatrix, shift);
                 }
 
                 for (std::size_t k = 0; k < m_sharedData.trainSettings->size; ++k) {
