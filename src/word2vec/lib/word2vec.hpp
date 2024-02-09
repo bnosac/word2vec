@@ -22,9 +22,10 @@
 typedef std::vector<std::string> types_t;
 // typedef std::vector<std::string> words_t;
 // typedef std::vector<std::string> text_t;
+typedef std::vector<int> words_t;
 typedef std::vector<int> text_t;
 typedef std::vector<text_t> texts_t;
-typedef std::vector<unsigned int> frequency_t;
+typedef std::vector<size_t> frequency_t;
 
 namespace w2v {
     
@@ -35,25 +36,52 @@ namespace w2v {
     public:
         texts_t texts;
         types_t types;
-        types_t stopWords;
+        words_t stopWords;
         frequency_t frequency;
+        size_t totalWords;
+        size_t trainWords;
         
         // Constructors
         corpus_t(): texts() {}
-        corpus_t(texts_t _texts, types_t _types, types_t _stopWords): 
+        corpus_t(texts_t _texts, types_t _types, words_t _stopWords): 
              texts(_texts), types(_types), stopWords(_stopWords) {}
         //corpus_t(texts_t _texts, words_t _stopWords): 
         //    texts(_texts), stopWords(_stopWords) {}
         
         void setWordFreq() {
+            Rcpp::Rcout << "here1\n";
+            
+            std::unordered_set<int> setStopWords; 
+            for (size_t g = 0; g < stopWords.size(); g++) {
+                setStopWords.insert(stopWords[g]);
+            }
+            //Rcpp::Rcout << "here2\n";
+            //return;
+            
             frequency = frequency_t(types.size(), 0);
+            totalWords = 0;
+            trainWords = 0;
             for (size_t h = 0; h < texts.size(); h++) {
                 text_t text = texts[h];
                 for (size_t i = 0; i < text.size(); i++) {
-                    unsigned int word = text[i];
+                    int word = text[i];
+                    //Rcpp::Rcout << i << ": " << word << "\n"; 
+                    if (word == 0) // padding
+                        continue;
+                    if (word < 0 || frequency.size() < word - 1)
+                        throw std::range_error("setWordFreq: invalid types");
                     frequency[word - 1]++;
+                    totalWords++;
+                    auto it = setStopWords.find(word);
+                    if (it != setStopWords.end()) {
+                        trainWords++;
+                    } else {
+                        texts[h][i] = 0;
+                    }
                 }
             }
+            Rcpp::Rcout << "trainWords: " << trainWords << "\n";
+            Rcpp::Rcout << "totalWords: " << totalWords << "\n";
         }
     };
     
