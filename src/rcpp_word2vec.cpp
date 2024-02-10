@@ -140,6 +140,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
                            },
                            nullptr);
   }
+  //return Rcpp::List::create();
   bool success = true;
   if (!trained) {
     Rcpp::Rcout << "Training failed: " << model->errMsg() << std::endl;
@@ -185,7 +186,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   return out;
 }
 
-
+/*
 // [[Rcpp::export]]
 Rcpp::List w2v_load_model(std::string file, bool normalize = true) {
   bool normalise = normalize;
@@ -209,6 +210,7 @@ bool w2v_save_model(SEXP ptr, std::string file) {
   bool success = model->save(file);
   return success;
 }
+*/
 
 // [[Rcpp::export]]
 std::vector<std::string> w2v_dictionary(SEXP ptr) {

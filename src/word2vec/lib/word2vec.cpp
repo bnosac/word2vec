@@ -8,7 +8,7 @@
 #include <Rcpp.h>
 #include "word2vec.hpp"
 #include "wordReader.hpp"
-#include "vocabulary.hpp"
+//#include "vocabulary.hpp"
 #include "trainer.hpp"
 
 namespace w2v {
@@ -34,7 +34,7 @@ namespace w2v {
             // }
 
             // build vocabulary, skip stop-words and words with frequency < minWordFreq
-            std::shared_ptr<vocabulary_t> vocabulary;
+            //std::shared_ptr<vocabulary_t> vocabulary;
             // if (!_trainFile.empty()) {
             //     vocabulary.reset(new vocabulary_t(trainWordsMapper,
             //                                       stopWordsMapper,
@@ -44,29 +44,29 @@ namespace w2v {
             //                                       _vocabularyProgressCallback,
             //                                       _vocabularyStatsCallback));
             // } else {
-                vocabulary.reset(new vocabulary_t(corpus,
-                                                  _trainSettings.minWordFreq,
-                                                  _vocabularyProgressCallback,
-                                                  _vocabularyStatsCallback));
+                // vocabulary.reset(new vocabulary_t(corpus,
+                //                                   _trainSettings.minWordFreq,
+                //                                   _vocabularyProgressCallback,
+                //                                   _vocabularyStatsCallback));
             //}
             
             // key words descending ordered by their indexes
-            std::vector<std::string> words;
-            vocabulary->words(words);
+            //std::vector<std::string> words;
+            //vocabulary->words(words);
             m_vectorSize = _trainSettings.size;
-            m_mapSize = vocabulary->size();
+            m_mapSize = corpus->types.size();
 
             // train model
             std::vector<float> _trainMatrix;
             trainer_t(std::make_shared<trainSettings_t>(_trainSettings),
-                      vocabulary,
+                      //vocabulary,
                       corpus,
                       //trainWordsMapper, // NOTE: remove
                       _trainProgressCallback)(_trainMatrix);
             //Rcpp::Rcout << "_trainMatrix: " << _trainMatrix.size() << "\n";
             
             std::size_t wordIndex = 0;
-            for (auto const &i:words) {
+            for (auto const &i : corpus->types) {
                 auto &v = m_map[i];
                 v.resize(m_vectorSize);
                 std::copy(&_trainMatrix[wordIndex * m_vectorSize],
@@ -84,7 +84,7 @@ namespace w2v {
 
         return false;
     }
-
+    /*
     bool w2vModel_t::save(const std::string &_modelFile) const noexcept {
         try {
             // save trained data in original word2vec format
@@ -334,4 +334,5 @@ namespace w2v {
             i /= med;
         }
     }
+    */
 }
