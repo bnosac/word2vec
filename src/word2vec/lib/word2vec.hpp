@@ -48,10 +48,7 @@ namespace w2v {
         //    texts(_texts), stopWords(_stopWords) {}
         
         void setWordFreq() {
-            Rcpp::Rcout << "here1\n";
             
-            std::unordered_set<std::string> setStopWords; 
-
             frequency = frequency_t(types.size(), 0);
             totalWords = 0;
             trainWords = 0;
@@ -59,20 +56,18 @@ namespace w2v {
                 text_t text = texts[h];
                 for (size_t i = 0; i < text.size(); i++) {
                     totalWords++;
-                    int &word = text[i];
+                    auto &word = text[i];
                     //Rcpp::Rcout << i << ": " << word << "\n"; 
-                    if (word == 0) // padding
-                        continue;
                     if (word < 0 || types.size() < word)
                         throw std::range_error("setWordFreq: invalid types");
+                    if (word == 0) // padding
+                        continue;
+                    // if (types[word - 1].empty()) {
+                    //     word = 0; // remove and pad
+                    //     continue;
+                    // }
                     frequency[word - 1]++;
-                    if (types[word - 1].empty()) {
-                        //Rcpp::Rcout << h << " " << i << " remove : " << word << "\n"; 
-                        word = 0; // remove and pad
-                    } else {
-                        //Rcpp::Rcout << h << " " << i << " count : " << word << "\n"; 
-                        trainWords++;
-                    }
+                    trainWords++;
                 }
             }
             Rcpp::Rcout << "trainWords: " << trainWords << "\n";

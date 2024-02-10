@@ -52,11 +52,11 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   w2v::corpus_t corpus(texts, types);
   corpus.setWordFreq();
       
-  Rcpp::List out2 = Rcpp::List::create(
-      Rcpp::Named("frequency") = corpus.frequency
-  );
-  
-  //return out2;
+  // Rcpp::List out2 = Rcpp::List::create(
+  //     Rcpp::Named("frequency") = corpus.frequency
+  // );
+  // 
+  // return out2;
   
   w2v::trainSettings_t trainSettings;
   trainSettings.minWordFreq = minWordFreq;
