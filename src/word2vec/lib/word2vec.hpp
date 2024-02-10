@@ -206,9 +206,9 @@ namespace w2v {
         const map_t &map() {return m_map;}
 
         /// pure virtual method to save model of a derived class
-        virtual bool save(const std::string &_modelFile) const noexcept = 0;
+        //virtual bool save(const std::string &_modelFile) const noexcept = 0;
         /// pure virtual method to load model of a derived class
-        virtual bool load(const std::string &_modelFile, bool normalize = true) noexcept = 0;
+        //virtual bool load(const std::string &_modelFile, bool normalize = true) noexcept = 0;
         
         /**
          * Vector access by key value
@@ -334,9 +334,9 @@ namespace w2v {
                    trainProgressCallback_t _trainProgressCallback) noexcept;
 
         /// saves word vectors to file with _modelFile name
-        bool save(const std::string &_modelFile) const noexcept override;
+        //bool save(const std::string &_modelFile) const noexcept override;
         /// loads word vectors from file with _modelFile name
-        bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
+        //bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
         /**
          * Normalise vectors
          */
@@ -390,9 +390,9 @@ namespace w2v {
             m_mapSize = m_map.size();
         }
         /// saves document vectors to file with _modelFile name
-        bool save(const std::string &_modelFile) const noexcept override;
+        //bool save(const std::string &_modelFile) const noexcept override;
         /// loads document vectors from file with _modelFile name
-        bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
+        //bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
     };
 
     /**
