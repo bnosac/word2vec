@@ -4,8 +4,15 @@ library(word2vec)
 corp <- data_corpus_inaugural %>% 
     corpus_reshape()
 toks <- tokens(corp, remove_punct = TRUE, remove_symbols = TRUE)
-lis <- as.list(toks)
-txt <- stringi::stri_c_list(lis, " ")
+lis <- unclass(toks)
+
+type <- types(toks)
+type[type %in% stopwords()] <- ""
+mod <- word2vec:::w2v_train(toks, type, verbose = TRUE)
+dim(as.matrix(mod))
+
+mod2 <- word2vec:::w2v_train(unclass(toks)[1:10], types(toks), verbose = TRUE)
+dim(as.matrix(mod2))
 
 mod_lis <- word2vec(lis, dim = 50, iter = 5, min_count = 5,
                     verbose = TRUE, threads = 4)
