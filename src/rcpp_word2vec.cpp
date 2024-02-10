@@ -12,7 +12,6 @@
 // [[Rcpp::export]]
 Rcpp::List w2v_train(Rcpp::List texts_, 
                      Rcpp::CharacterVector types_, 
-                     Rcpp::CharacterVector stopWords_, 
                      std::string modelFile = "", 
                      uint16_t minWordFreq = 5,
                      uint16_t size = 100,
@@ -49,11 +48,16 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   
   texts_t texts = Rcpp::as<texts_t>(texts_);
   types_t types = Rcpp::as<types_t>(types_);
-  types_t stopWords = Rcpp::as<types_t>(stopWords_);
   
-  w2v::corpus_t corpus(texts, types, stopWords);
+  w2v::corpus_t corpus(texts, types);
   corpus.setWordFreq();
       
+  Rcpp::List out2 = Rcpp::List::create(
+      Rcpp::Named("frequency") = corpus.frequency
+  );
+  
+  //return out2;
+  
   w2v::trainSettings_t trainSettings;
   trainSettings.minWordFreq = minWordFreq;
   trainSettings.size = size;
