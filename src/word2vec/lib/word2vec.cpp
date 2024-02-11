@@ -22,8 +22,6 @@ namespace w2v {
             m_vectorSize = _trainSettings.size;
             m_mapSize = corpus->types.size();
             
-            Rcpp::Rcout << "_trainSettings.size: " << _trainSettings.size << "\n";
-            
             // train model
             std::vector<float> _trainMatrix;
             trainer_t(std::make_shared<trainSettings_t>(_trainSettings),
