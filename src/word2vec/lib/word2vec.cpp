@@ -16,8 +16,8 @@ namespace w2v {
                            const corpus_t &_corpus,
                            //const std::string &_trainFile, // NOTE: remove
                            //const std::string &_stopWordsFile, // NOTE: remove
-                           vocabularyProgressCallback_t _vocabularyProgressCallback,
-                           vocabularyStatsCallback_t _vocabularyStatsCallback,
+                           //vocabularyProgressCallback_t _vocabularyProgressCallback,
+                           //vocabularyStatsCallback_t _vocabularyStatsCallback,
                            trainProgressCallback_t _trainProgressCallback) noexcept {
         try {
             // store tokens
@@ -57,7 +57,7 @@ namespace w2v {
             m_mapSize = corpus->types.size();
 
             // train model
-            std::vector<float> _trainMatrix;
+            std::vector<float> _trainMatrix; // NOTE: consider directly making m_map
             trainer_t(std::make_shared<trainSettings_t>(_trainSettings),
                       //vocabulary,
                       corpus,
@@ -67,6 +67,7 @@ namespace w2v {
             
             std::size_t wordIndex = 0;
             for (auto const &i : corpus->types) {
+                //Rcpp::Rcout << i << "\n";
                 auto &v = m_map[i];
                 v.resize(m_vectorSize);
                 std::copy(&_trainMatrix[wordIndex * m_vectorSize],
