@@ -83,28 +83,28 @@ Rcpp::List w2v_train(Rcpp::List texts_,
     Progress p(100, true);
     trained = model->train(trainSettings, corpus, 
                            //trainFile, stopWordsFile, // NOTE: remove
-                           [&p] (float _percent) {
-                             p.update(_percent / 2);
-                             /*
-                              std::cout << "\rParsing train data... "
-                                        << std::fixed << std::setprecision(2)
-                                        << _percent << "%" << std::flush;
-                              */
-                           },
-                           [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
-                             /*
-                              Rcpp::Rcerr << std::endl
-                                          << "Finished reading data: " << std::endl
-                                          << "Vocabulary size: " << _vocWords << std::endl
-                                          << "Train words: " << _trainWords << std::endl
-                                          << "Total words: " << _totalWords << std::endl
-                                          << "Start training" << std::endl
-                                          << std::endl;
-                              */
-                             vocWords = _vocWords;
-                             trainWords = _trainWords;
-                             totalWords = _totalWords;
-                           },
+                           // [&p] (float _percent) {
+                           //   p.update(_percent / 2);
+                           //   /*
+                           //    std::cout << "\rParsing train data... "
+                           //              << std::fixed << std::setprecision(2)
+                           //              << _percent << "%" << std::flush;
+                           //    */
+                           // },
+                           // [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
+                           //   /*
+                           //    Rcpp::Rcerr << std::endl
+                           //                << "Finished reading data: " << std::endl
+                           //                << "Vocabulary size: " << _vocWords << std::endl
+                           //                << "Train words: " << _trainWords << std::endl
+                           //                << "Total words: " << _totalWords << std::endl
+                           //                << "Start training" << std::endl
+                           //                << std::endl;
+                           //    */
+                           //   vocWords = _vocWords;
+                           //   trainWords = _trainWords;
+                           //   totalWords = _totalWords;
+                           // },
                            [&p] (float _alpha, float _percent) {
                              /*
                               std::cout << '\r'
@@ -116,30 +116,31 @@ Rcpp::List w2v_train(Rcpp::List texts_,
                                         << _percent << "%"
                                         << std::flush;
                               */
-                             p.update(50 + (_percent / 2));
+                             p.update(_percent);
                            }
     );
     //std::cout << std::endl;
   } else {
     trained = model->train(trainSettings, corpus, 
                            //trainFile, stopWordsFile, // NOTE: remove
-                           nullptr, 
-                           [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
-                             /*
-                              Rcpp::Rcerr << std::endl
-                                          << "Finished reading data: " << std::endl
-                                          << "Vocabulary size: " << _vocWords << std::endl
-                                          << "Train words: " << _trainWords << std::endl
-                                          << "Total words: " << _totalWords << std::endl
-                                          << "Start training" << std::endl
-                                          << std::endl;
-                              */
-                             vocWords = _vocWords;
-                             trainWords = _trainWords;
-                             totalWords = _totalWords;
-                           },
+                           // nullptr, 
+                           // [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
+                           //   /*
+                           //    Rcpp::Rcerr << std::endl
+                           //                << "Finished reading data: " << std::endl
+                           //                << "Vocabulary size: " << _vocWords << std::endl
+                           //                << "Train words: " << _trainWords << std::endl
+                           //                << "Total words: " << _totalWords << std::endl
+                           //                << "Start training" << std::endl
+                           //                << std::endl;
+                           //    */
+                           //   vocWords = _vocWords;
+                           //   trainWords = _trainWords;
+                           //   totalWords = _totalWords;
+                           // },
                            nullptr);
   }
+  Rcpp::Rcout << "Training done\n";
   //return Rcpp::List::create();
   bool success = true;
   if (!trained) {
@@ -149,7 +150,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   // NORMALISE UPFRONT - DIFFERENT THAN ORIGINAL CODE 
   // - original code dumps data to disk, next imports it and during import normalisation happens after which we can do nearest calculations
   // - the R wrapper only writes to disk at request so we need to normalise upfront in order to do directly nearest calculations
-  if(normalize){
+  if (normalize) {
     //Rcpp::Rcout << "Finished training: finalising with embedding normalisation" << std::endl;
     model->normalize();
   }

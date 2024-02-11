@@ -329,8 +329,8 @@ namespace w2v {
                    const corpus_t &_corpus,
                    //const std::string &_trainFile, // NOTE: remove
                    //const std::string &_stopWordsFile, // NOTE: remove
-                   vocabularyProgressCallback_t _vocabularyProgressCallback,
-                   vocabularyStatsCallback_t _vocabularyStatsCallback,
+                   //vocabularyProgressCallback_t _vocabularyProgressCallback,
+                   //vocabularyStatsCallback_t _vocabularyStatsCallback,
                    trainProgressCallback_t _trainProgressCallback) noexcept;
 
         /// saves word vectors to file with _modelFile name
