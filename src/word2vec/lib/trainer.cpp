@@ -11,9 +11,7 @@
 
 namespace w2v {
     trainer_t::trainer_t(const std::shared_ptr<trainSettings_t> &_trainSettings,
-                         //const std::shared_ptr<vocabulary_t> &_vocabulary,
                          const std::shared_ptr<corpus_t> &_corpus,
-                         //const std::shared_ptr<fileMapper_t> &_fileMapper, // NOTE: remove
                          std::function<void(float, float)> _progressCallback): m_threads() {
         trainThread_t::sharedData_t sharedData;
 
@@ -22,11 +20,6 @@ namespace w2v {
         }
         sharedData.trainSettings = _trainSettings;
 
-        // if (!_vocabulary) {
-        //     throw std::runtime_error("vocabulary object is not initialized");
-        // }
-        // sharedData.vocabulary = _vocabulary;
-        
         if (!_corpus) {
             throw std::runtime_error("corpus is object is not initialized");
         }
@@ -58,11 +51,8 @@ namespace w2v {
         m_matrixSize = sharedData.trainSettings->size * sharedData.corpus->types.size();
         
         for (uint8_t i = 0; i < _trainSettings->threads; ++i) {
-            // trainThread_t t(i, sharedData);
-            // Rcpp::Rcout << "thread: " << (int)i << " from " << t.range.first << " to " << t.range.second << "\n"; 
             m_threads.emplace_back(new trainThread_t(i, sharedData));
         }
-        //throw std::runtime_error("m_threads.emplace_back()");
     }
 
     void trainer_t::operator()(std::vector<float> &_trainMatrix) noexcept {
@@ -72,9 +62,9 @@ namespace w2v {
         std::uniform_real_distribution<float> rndMatrixInitializer(-0.005f, 0.005f);
         _trainMatrix.resize(m_matrixSize);
         std::generate(_trainMatrix.begin(), _trainMatrix.end(), [&]() {
-            //float v = (float)(Rcpp::runif(1, -0.005f, 0.005f)[0]);
-            //return v;
-            return rndMatrixInitializer(randomGenerator); // NOTE:: pass random number seed?
+            float v = (float)(Rcpp::runif(1, -0.005f, 0.005f)[0]);
+            return v;
+            //return rndMatrixInitializer(randomGenerator); // NOTE:: pass random number seed?
         });
         
         for (auto &i:m_threads) {
