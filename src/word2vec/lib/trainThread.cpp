@@ -18,9 +18,6 @@ namespace w2v {
         if (!m_sharedData.trainSettings) {
             throw std::runtime_error("train settings are not initialized");
         }
-        // if (!m_sharedData.vocabulary) {
-        //     throw std::runtime_error("vocabulary object is not initialized");
-        // }
 
         if (m_sharedData.trainSettings->sample > 0.0f) {
             m_downSampling.reset(new downSampling_t(m_sharedData.trainSettings->sample,
@@ -28,8 +25,6 @@ namespace w2v {
         }
 
         if (m_sharedData.trainSettings->negative > 0) {
-            //std::vector<std::size_t> frequencies;
-            //m_sharedData.vocabulary->frequencies(frequencies);
             m_nsDistribution.reset(new nsDistribution_t(m_sharedData.corpus->frequency));
         }
 
@@ -69,7 +64,7 @@ namespace w2v {
             auto wordsPerAlpha = wordsPerAllThreads / 10000;
             //while (!exitFlag) {
             //while (h <= range.second) {
-            for (std::size_t h = range.first; h <= range.second; h++) {
+            for (std::size_t h = range.first; h <= range.second; ++h) {
 
                 // calc alpha
                 if (threadProcessedWords - prvThreadProcessedWords > wordsPerAlpha) { // next 0.01% processed
@@ -99,11 +94,11 @@ namespace w2v {
                 // read sentence
                 std::vector<unsigned int> sentence;
                 sentence.reserve(text.size());
-                for (size_t i = 0; i < text.size(); i++) {
+                for (size_t i = 0; i < text.size(); ++i) {
 
                     auto &word = text[i];
-                    if (word == 0) {
-                        continue; // padding
+                    if (word == 0) { // padding
+                        continue; 
                     }
 
                     threadProcessedWords++;
@@ -115,7 +110,7 @@ namespace w2v {
                     }
                     //if (h == 1)
                     //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
-                    sentence.push_back(word);
+                    sentence.push_back(word - 1); // zero-based index of words
                 }
                 
                 if (m_sharedData.trainSettings->withSG) {
@@ -161,13 +156,13 @@ namespace w2v {
             for (std::size_t j = 0; j < m_sharedData.trainSettings->size; j++) {
                 (*m_hiddenLayerVals)[j] /= cw;
             }
-
+            
             if (m_sharedData.trainSettings->withHS) {
                 hierarchicalSoftmax(_sentence[i], *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
             } else {
                 negativeSampling(_sentence[i], *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
             }
-
+            
             // hidden -> in
             for (auto j = rndShift; j < m_sharedData.trainSettings->window * 2 + 1 - rndShift; ++j) {
                 if (j == m_sharedData.trainSettings->window) {
