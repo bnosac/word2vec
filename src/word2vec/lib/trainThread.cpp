@@ -108,8 +108,6 @@ namespace w2v {
                             continue; // skip this word
                         }
                     }
-                    //if (h == 1)
-                    //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
                     sentence.push_back(word - 1); // zero-based index of words
                 }
                 
@@ -118,7 +116,6 @@ namespace w2v {
                 } else {
                     cbow(sentence, _trainMatrix);
                 }
-                //h++; // move to next text
             }
         }
     }
