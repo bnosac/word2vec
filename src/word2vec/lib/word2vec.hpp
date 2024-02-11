@@ -44,9 +44,7 @@ namespace w2v {
         corpus_t(): texts() {}
         corpus_t(texts_t _texts, types_t _types): 
              texts(_texts), types(_types) {}
-        //corpus_t(texts_t _texts, words_t _stopWords): 
-        //    texts(_texts), stopWords(_stopWords) {}
-        
+
         void setWordFreq() {
             
             frequency = frequency_t(types.size(), 0);
@@ -72,6 +70,8 @@ namespace w2v {
             }
             Rcpp::Rcout << "trainWords: " << trainWords << "\n";
             Rcpp::Rcout << "totalWords: " << totalWords << "\n";
+            Rcpp::Rcout << "frequency.size(): " << frequency.size() << "\n";
+            Rcpp::Rcout << "types.size(): " << types.size() << "\n";
         }
     };
     
@@ -91,6 +91,7 @@ namespace w2v {
         uint8_t iterations = 5; ///< train iterations
         float alpha = 0.05f; ///< starting learn rate
         bool withSG = false; ///< use Skip-Gram instead of CBOW
+        // TODO: remove
         std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r";
         std::string endOfSentenceChars = ".\n?!";
         trainSettings_t() = default;
@@ -205,11 +206,6 @@ namespace w2v {
         /// Direct access to the word-vector map
         const map_t &map() {return m_map;}
 
-        /// pure virtual method to save model of a derived class
-        //virtual bool save(const std::string &_modelFile) const noexcept = 0;
-        /// pure virtual method to load model of a derived class
-        //virtual bool load(const std::string &_modelFile, bool normalize = true) noexcept = 0;
-        
         /**
          * Vector access by key value
          * @param _key key value uniquely identifying vector in model
@@ -327,16 +323,8 @@ namespace w2v {
         */
         bool train(const trainSettings_t &_trainSettings,
                    const corpus_t &_corpus,
-                   //const std::string &_trainFile, // NOTE: remove
-                   //const std::string &_stopWordsFile, // NOTE: remove
-                   //vocabularyProgressCallback_t _vocabularyProgressCallback,
-                   //vocabularyStatsCallback_t _vocabularyStatsCallback,
                    trainProgressCallback_t _trainProgressCallback) noexcept;
 
-        /// saves word vectors to file with _modelFile name
-        //bool save(const std::string &_modelFile) const noexcept override;
-        /// loads word vectors from file with _modelFile name
-        //bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
         /**
          * Normalise vectors
          */
