@@ -18,19 +18,19 @@ namespace w2v {
         if (!m_sharedData.trainSettings) {
             throw std::runtime_error("train settings are not initialized");
         }
-        if (!m_sharedData.vocabulary) {
-            throw std::runtime_error("vocabulary object is not initialized");
-        }
+        // if (!m_sharedData.vocabulary) {
+        //     throw std::runtime_error("vocabulary object is not initialized");
+        // }
 
         if (m_sharedData.trainSettings->sample > 0.0f) {
             m_downSampling.reset(new downSampling_t(m_sharedData.trainSettings->sample,
-                                                    m_sharedData.vocabulary->trainWords()));
+                                                    m_sharedData.corpus->trainWords));
         }
 
         if (m_sharedData.trainSettings->negative > 0) {
-            std::vector<std::size_t> frequencies;
-            m_sharedData.vocabulary->frequencies(frequencies);
-            m_nsDistribution.reset(new nsDistribution_t(frequencies));
+            //std::vector<std::size_t> frequencies;
+            //m_sharedData.vocabulary->frequencies(frequencies);
+            m_nsDistribution.reset(new nsDistribution_t(m_sharedData.corpus->frequency));
         }
 
         if (m_sharedData.trainSettings->withHS && !m_sharedData.huffmanTree) {
@@ -64,7 +64,7 @@ namespace w2v {
 
             std::size_t h = range.first; // NOTE: only used for corpus
             auto wordsPerAllThreads = m_sharedData.trainSettings->iterations
-                                      * m_sharedData.vocabulary->trainWords();
+                                      * m_sharedData.corpus->trainWords;
             auto wordsPerAlpha = wordsPerAllThreads / 10000;
             while (!exitFlag) {
                 // calc alpha
@@ -86,32 +86,26 @@ namespace w2v {
                     }
                 }
                 
-                // read sentence
-                std::vector<unsigned int> sentence;
-                
-                // Rcpp::Rcout << "h: " << h << "\n";
                 if (h > range.second) {
                     exitFlag = true; // EOF or end of requested region
                     break;
                 }
                 text_t text = m_sharedData.corpus->texts[h];
                 
+                // read sentence
+                std::vector<unsigned int> sentence;
+                sentence.reserve(text.size());
                 for (size_t i = 0; i < text.size(); i++) {
 
-                    unsigned int word = text[i];
+                    auto &word = text[i];
                     if (word == 0) {
                         continue; // padding
                     }
-                    // auto wordData = m_sharedData.vocabulary->data(word);
-                    // if (wordData == nullptr) {
-                    //     continue; // no such word
-                    // }
-                    
+
                     threadProcessedWords++;
                     
-                    if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
-                        //if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
-                        if ((*m_downSampling)(m_sharedData.corpus->frequency[word], m_randomGenerator)) {
+                    if (m_sharedData.trainSettings->sample > 0.0f) {
+                        if ((*m_downSampling)(m_sharedData.corpus->frequency[word - 1], m_randomGenerator)) {
                             continue; // skip this word
                         }
                     }
@@ -132,6 +126,9 @@ namespace w2v {
 
     inline void trainThread_t::cbow(const std::vector<unsigned int> &_sentence,
                                     std::vector<float> &_trainMatrix) noexcept {
+        
+        if (_sentence.size() == 0)
+            return;
         for (std::size_t i = 0; i < _sentence.size(); ++i) {
             // hidden layers initialized with 0 values
             std::memset(m_hiddenLayerVals->data(), 0, m_hiddenLayerVals->size() * sizeof(float));
@@ -187,6 +184,8 @@ namespace w2v {
 
     inline void trainThread_t::skipGram(const std::vector<unsigned int> &_sentence,
                                         std::vector<float> &_trainMatrix) noexcept {
+        if (_sentence.size() == 0)
+            return;
         for (std::size_t i = 0; i < _sentence.size(); ++i) {
             auto rndShift = m_rndWindowShift(m_randomGenerator);
             for (auto j = rndShift; j < m_sharedData.trainSettings->window * 2 + 1 - rndShift; ++j) {

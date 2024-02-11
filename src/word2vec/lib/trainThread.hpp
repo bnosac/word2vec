@@ -19,7 +19,7 @@
 
 #include "word2vec.hpp"
 //#include "wordReader.hpp"
-#include "vocabulary.hpp"
+//#include "vocabulary.hpp"
 #include "huffmanTree.hpp"
 #include "nsDistribution.hpp"
 #include "downSampling.hpp"
@@ -41,7 +41,7 @@ namespace w2v {
         */
         struct sharedData_t final {
             std::shared_ptr<trainSettings_t> trainSettings; ///< trainSettings structure
-            std::shared_ptr<vocabulary_t> vocabulary; ///< words data
+            //std::shared_ptr<vocabulary_t> vocabulary; ///< words data
             std::shared_ptr<corpus_t> corpus; ///< train data 
             //std::shared_ptr<fileMapper_t> fileMapper; /// NOTE: remove
             std::shared_ptr<std::vector<float>> bpWeights; ///< back propagation weights
