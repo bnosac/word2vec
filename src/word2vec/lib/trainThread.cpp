@@ -56,17 +56,21 @@ namespace w2v {
 
     void trainThread_t::worker(std::vector<float> &_trainMatrix) noexcept {
         
+        Rcpp::Rcout << "Texts: " << range.first << " to " << range.second << "\n";        
         for (auto g = m_sharedData.trainSettings->iterations; g > 0; --g) {
             //Rcpp::Rcout << "g: " << (int)g << "\n";
-            bool exitFlag = false;
+            //bool exitFlag = false;
             std::size_t threadProcessedWords = 0;
             std::size_t prvThreadProcessedWords = 0;
 
-            std::size_t h = range.first; // NOTE: only used for corpus
+            //std::size_t h = range.first; // NOTE: only used for corpus
             auto wordsPerAllThreads = m_sharedData.trainSettings->iterations
                                       * m_sharedData.corpus->trainWords;
             auto wordsPerAlpha = wordsPerAllThreads / 10000;
-            while (!exitFlag) {
+            //while (!exitFlag) {
+            //while (h <= range.second) {
+            for (std::size_t h = range.first; h <= range.second; h++) {
+
                 // calc alpha
                 if (threadProcessedWords - prvThreadProcessedWords > wordsPerAlpha) { // next 0.01% processed
                     *m_sharedData.processedWords += threadProcessedWords - prvThreadProcessedWords;
@@ -86,10 +90,10 @@ namespace w2v {
                     }
                 }
                 
-                if (h > range.second) {
-                    exitFlag = true; // EOF or end of requested region
-                    break;
-                }
+                // if (h > range.second) {
+                //     exitFlag = true; // EOF or end of requested region
+                //     break;
+                // }
                 text_t text = m_sharedData.corpus->texts[h];
                 
                 // read sentence
@@ -119,7 +123,7 @@ namespace w2v {
                 } else {
                     cbow(sentence, _trainMatrix);
                 }
-                h++; // move to next text
+                //h++; // move to next text
             }
         }
     }
