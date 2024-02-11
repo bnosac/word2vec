@@ -11,7 +11,7 @@
 
 namespace w2v {
     trainer_t::trainer_t(const std::shared_ptr<trainSettings_t> &_trainSettings,
-                         const std::shared_ptr<vocabulary_t> &_vocabulary,
+                         //const std::shared_ptr<vocabulary_t> &_vocabulary,
                          const std::shared_ptr<corpus_t> &_corpus,
                          //const std::shared_ptr<fileMapper_t> &_fileMapper, // NOTE: remove
                          std::function<void(float, float)> _progressCallback): m_threads() {
@@ -22,23 +22,17 @@ namespace w2v {
         }
         sharedData.trainSettings = _trainSettings;
 
-        if (!_vocabulary) {
-            throw std::runtime_error("vocabulary object is not initialized");
-        }
-        sharedData.vocabulary = _vocabulary;
+        // if (!_vocabulary) {
+        //     throw std::runtime_error("vocabulary object is not initialized");
+        // }
+        // sharedData.vocabulary = _vocabulary;
         
         if (!_corpus) {
             throw std::runtime_error("corpus is object is not initialized");
         }
         sharedData.corpus = _corpus;
         
-        // if (!_corpus && !_fileMapper) {
-        //     throw std::runtime_error("corpus and file mapper objects are not initialized");
-        // }
-        // sharedData.corpus = _corpus;
-        // sharedData.fileMapper = _fileMapper;
-        
-        sharedData.bpWeights.reset(new std::vector<float>(_trainSettings->size * _vocabulary->size(), 0.0f));
+        sharedData.bpWeights.reset(new std::vector<float>(_trainSettings->size * _corpus->types.size(), 0.0f));
         sharedData.expTable.reset(new std::vector<float>(_trainSettings->expTableSize));
         for (uint16_t i = 0; i < _trainSettings->expTableSize; ++i) {
             // Precompute the exp() table
@@ -50,9 +44,7 @@ namespace w2v {
         }
         
         if (_trainSettings->withHS) {
-            std::vector<std::size_t> frequencies;
-            _vocabulary->frequencies(frequencies);
-            sharedData.huffmanTree.reset(new huffmanTree_t(frequencies));;
+            sharedData.huffmanTree.reset(new huffmanTree_t(_corpus->frequency));;
         }
 
         if (_progressCallback != nullptr) {
@@ -62,15 +54,9 @@ namespace w2v {
         sharedData.processedWords.reset(new std::atomic<std::size_t>(0));
         sharedData.alpha.reset(new std::atomic<float>(_trainSettings->alpha));
         
-        // if (_corpus) {
-        //     // NOTE : corpus has no sentence delimiter
-        //     m_matrixSize = sharedData.trainSettings->size * sharedData.vocabulary->size() + 100;
-        // } else {
-            m_matrixSize = sharedData.trainSettings->size * sharedData.vocabulary->size();
-        //}
-        //Rcpp::Rcout << "corpus->texts.size(): " << sharedData.corpus->texts.size() << "\n";
-        //Rcpp::Rcout << "vocabulary->size(): " << sharedData.vocabulary->size() << "\n";
-        //Rcpp::Rcout << "_trainSettings->threads: " << (int)_trainSettings->threads << "\n";
+        // NOTE: consider setting size elsewhere
+        m_matrixSize = sharedData.trainSettings->size * sharedData.corpus->types.size();
+        
         for (uint8_t i = 0; i < _trainSettings->threads; ++i) {
             // trainThread_t t(i, sharedData);
             // Rcpp::Rcout << "thread: " << (int)i << " from " << t.range.first << " to " << t.range.second << "\n"; 
@@ -86,15 +72,15 @@ namespace w2v {
         std::uniform_real_distribution<float> rndMatrixInitializer(-0.005f, 0.005f);
         _trainMatrix.resize(m_matrixSize);
         std::generate(_trainMatrix.begin(), _trainMatrix.end(), [&]() {
-            float v = (float)(Rcpp::runif(1, -0.005f, 0.005f)[0]);
-            return v;
-            //return rndMatrixInitializer(randomGenerator);
+            //float v = (float)(Rcpp::runif(1, -0.005f, 0.005f)[0]);
+            //return v;
+            return rndMatrixInitializer(randomGenerator); // NOTE:: pass random number seed?
         });
-
+        
         for (auto &i:m_threads) {
             i->launch(_trainMatrix);
         }
-
+        
         for (auto &i:m_threads) {
             i->join();
         }
