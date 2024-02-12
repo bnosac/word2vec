@@ -1,7 +1,9 @@
 library(quanteda)
 library(word2vec)
 
-corp <- data_corpus_inaugural %>% 
+data_corpus_guardian <- readRDS("/home/kohei/Dropbox/Public/data_corpus_guardian2016-10k.rds")
+corp <- data_corpus_guardian %>% 
+#corp <- data_corpus_inaugural %>% 
     corpus_reshape()
 toks <- tokens(corp, remove_punct = TRUE, remove_symbols = TRUE) %>% 
     tokens_remove(stopwords(), padding = TRUE) %>% 
@@ -9,7 +11,7 @@ toks <- tokens(corp, remove_punct = TRUE, remove_symbols = TRUE) %>%
 ndoc(toks)
 
 mod <- word2vec:::w2v_train(toks, types(toks), verbose = TRUE, size = 300, 
-                             iterations = 5, minWordFreq = 5)
+                             iterations = 5, minWordFreq = 5, threads = 6)
 dim(as.matrix(mod))
 predict(mod, c("people", "american"), type = "nearest")
 
