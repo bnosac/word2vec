@@ -1,5 +1,6 @@
 library(quanteda)
 library(word2vec)
+library(LSX)
 
 data_corpus_guardian <- readRDS("/home/kohei/Dropbox/Public/data_corpus_guardian2016-10k.rds")
 corp <- data_corpus_guardian %>% 
@@ -15,10 +16,15 @@ mod <- word2vec:::w2v_train(toks, types(toks), verbose = TRUE, size = 300,
 dim(as.matrix(mod))
 predict(mod, c("people", "american"), type = "nearest")
 
-require(LSX)
-lss <- as.textmodel_lss(t(as.matrix(mod)), "good")
+dfmt <- dfm(toks, remove_padding = TRUE) %>% 
+    dfm_trim(min_termfreq = 5)
+lss <- textmodel_lss(dfmt, c("good" = 1, "bad" = -1), cache = TRUE)
 head(coef(lss))
 tail(coef(lss))
+
+lss2 <- as.textmodel_lss(t(as.matrix(mod)), c("good" = 1, "bad" = -1))
+head(coef(lss2))
+tail(coef(lss2))
 
 lis <- as.list(toks)
 mod_lis <- word2vec(lis, dim = 50, iter = 5, min_count = 5,
