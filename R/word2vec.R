@@ -523,8 +523,8 @@ predict.word2vec_trained <- function(object, newdata, type = c("nearest", "embed
 #' @title Similarity between word vectors as used in word2vec
 #' @description The similarity between word vectors is defined 
 #' \itemize{
-#'  \item{for type 'dot': }{as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero}
-#'  \item{for type 'cosine': }{as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) }
+#'  \item{for type 'dot': as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero}
+#'  \item{for type 'cosine': as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) }
 #' }
 #' @param x a matrix with embeddings where the rownames of the matrix provide the label of the term
 #' @param y a matrix with embeddings where the rownames of the matrix provide the label of the term
