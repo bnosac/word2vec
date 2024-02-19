@@ -11,10 +11,8 @@
 // [[Rcpp::depends(RcppProgress)]]
 // [[Rcpp::export]]
 Rcpp::List w2v_train(Rcpp::List texts_, 
-                     Rcpp::CharacterVector stopWords_, 
-                     std::string trainFile, // NOTE: remove
-                     std::string modelFile, 
-                     std::string stopWordsFile, // NOTE: remove
+                     Rcpp::CharacterVector types_, 
+                     std::string modelFile = "", 
                      uint16_t minWordFreq = 5,
                      uint16_t size = 100,
                      uint8_t window = 5,
@@ -27,8 +25,6 @@ Rcpp::List w2v_train(Rcpp::List texts_,
                      uint8_t iterations = 5,
                      float alpha = 0.05,
                      bool withSG = false,
-                     std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r",
-                     std::string endOfSentenceChars = ".\n?!",
                      bool verbose = false,
                      bool normalize = true) {
   
@@ -51,9 +47,17 @@ Rcpp::List w2v_train(Rcpp::List texts_,
    */
   
   texts_t texts = Rcpp::as<texts_t>(texts_);
-  words_t stopWords = Rcpp::as<words_t>(stopWords_);
-  w2v::corpus_t corpus(texts, stopWords);
-    
+  types_t types = Rcpp::as<types_t>(types_);
+  
+  w2v::corpus_t corpus(texts, types);
+  corpus.setWordFreq();
+      
+  // Rcpp::List out2 = Rcpp::List::create(
+  //     Rcpp::Named("frequency") = corpus.frequency
+  // );
+  // 
+  // return out2;
+  
   w2v::trainSettings_t trainSettings;
   trainSettings.minWordFreq = minWordFreq;
   trainSettings.size = size;
@@ -67,40 +71,40 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   trainSettings.iterations = iterations;
   trainSettings.alpha = alpha;
   trainSettings.withSG = withSG;
-  trainSettings.wordDelimiterChars = wordDelimiterChars;
-  trainSettings.endOfSentenceChars = endOfSentenceChars;
+  //trainSettings.wordDelimiterChars = wordDelimiterChars;
+  //trainSettings.endOfSentenceChars = endOfSentenceChars;
   Rcpp::XPtr<w2v::w2vModel_t> model(new w2v::w2vModel_t(), true);
   bool trained;
   
   std::size_t vocWords;
   std::size_t trainWords;
   std::size_t totalWords;
-  if (verbose) {
+  if (verbose) { // NOTE: consider removing progress bar
     Progress p(100, true);
     trained = model->train(trainSettings, corpus, 
-                           trainFile, stopWordsFile, // NOTE: remove
-                           [&p] (float _percent) {
-                             p.update(_percent/2);
-                             /*
-                              std::cout << "\rParsing train data... "
-                                        << std::fixed << std::setprecision(2)
-                                        << _percent << "%" << std::flush;
-                              */
-                           },
-                           [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
-                             /*
-                              Rcpp::Rcerr << std::endl
-                                          << "Finished reading data: " << std::endl
-                                          << "Vocabulary size: " << _vocWords << std::endl
-                                          << "Train words: " << _trainWords << std::endl
-                                          << "Total words: " << _totalWords << std::endl
-                                          << "Start training" << std::endl
-                                          << std::endl;
-                              */
-                             vocWords = _vocWords;
-                             trainWords = _trainWords;
-                             totalWords = _totalWords;
-                           },
+                           //trainFile, stopWordsFile, // NOTE: remove
+                           // [&p] (float _percent) {
+                           //   p.update(_percent / 2);
+                           //   /*
+                           //    std::cout << "\rParsing train data... "
+                           //              << std::fixed << std::setprecision(2)
+                           //              << _percent << "%" << std::flush;
+                           //    */
+                           // },
+                           // [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
+                           //   /*
+                           //    Rcpp::Rcerr << std::endl
+                           //                << "Finished reading data: " << std::endl
+                           //                << "Vocabulary size: " << _vocWords << std::endl
+                           //                << "Train words: " << _trainWords << std::endl
+                           //                << "Total words: " << _totalWords << std::endl
+                           //                << "Start training" << std::endl
+                           //                << std::endl;
+                           //    */
+                           //   vocWords = _vocWords;
+                           //   trainWords = _trainWords;
+                           //   totalWords = _totalWords;
+                           // },
                            [&p] (float _alpha, float _percent) {
                              /*
                               std::cout << '\r'
@@ -112,30 +116,32 @@ Rcpp::List w2v_train(Rcpp::List texts_,
                                         << _percent << "%"
                                         << std::flush;
                               */
-                             p.update(50+(_percent/2));
+                             p.update(_percent);
                            }
     );
     //std::cout << std::endl;
   } else {
     trained = model->train(trainSettings, corpus, 
-                           trainFile, stopWordsFile, // NOTE: remove
-                           nullptr, 
-                           [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
-                             /*
-                              Rcpp::Rcerr << std::endl
-                                          << "Finished reading data: " << std::endl
-                                          << "Vocabulary size: " << _vocWords << std::endl
-                                          << "Train words: " << _trainWords << std::endl
-                                          << "Total words: " << _totalWords << std::endl
-                                          << "Start training" << std::endl
-                                          << std::endl;
-                              */
-                             vocWords = _vocWords;
-                             trainWords = _trainWords;
-                             totalWords = _totalWords;
-                           },
+                           //trainFile, stopWordsFile, // NOTE: remove
+                           // nullptr, 
+                           // [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
+                           //   /*
+                           //    Rcpp::Rcerr << std::endl
+                           //                << "Finished reading data: " << std::endl
+                           //                << "Vocabulary size: " << _vocWords << std::endl
+                           //                << "Train words: " << _trainWords << std::endl
+                           //                << "Total words: " << _totalWords << std::endl
+                           //                << "Start training" << std::endl
+                           //                << std::endl;
+                           //    */
+                           //   vocWords = _vocWords;
+                           //   trainWords = _trainWords;
+                           //   totalWords = _totalWords;
+                           // },
                            nullptr);
   }
+  Rcpp::Rcout << "Training done\n";
+  //return Rcpp::List::create();
   bool success = true;
   if (!trained) {
     Rcpp::Rcout << "Training failed: " << model->errMsg() << std::endl;
@@ -144,7 +150,7 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   // NORMALISE UPFRONT - DIFFERENT THAN ORIGINAL CODE 
   // - original code dumps data to disk, next imports it and during import normalisation happens after which we can do nearest calculations
   // - the R wrapper only writes to disk at request so we need to normalise upfront in order to do directly nearest calculations
-  if(normalize){
+  if (normalize) {
     //Rcpp::Rcout << "Finished training: finalising with embedding normalisation" << std::endl;
     model->normalize();
   }
@@ -153,8 +159,8 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   Rcpp::List out = Rcpp::List::create(
     Rcpp::Named("model") = model,
     Rcpp::Named("data") = Rcpp::List::create(
-      Rcpp::Named("file") = trainFile,
-      Rcpp::Named("stopwords") = stopWordsFile,
+      //Rcpp::Named("file") = trainFile,
+      //Rcpp::Named("stopwords") = stopWordsFile,
       Rcpp::Named("n") = totalWords,
       Rcpp::Named("n_vocabulary") = trainWords
     ),
@@ -172,16 +178,16 @@ Rcpp::List w2v_train(Rcpp::List texts_,
       Rcpp::Named("negative") = negative,
       Rcpp::Named("sample") = sample,
       Rcpp::Named("expTableSize") = expTableSize,
-      Rcpp::Named("expValueMax") = expValueMax,
-      Rcpp::Named("split_words") = wordDelimiterChars,
-      Rcpp::Named("split_sents") = endOfSentenceChars
+      Rcpp::Named("expValueMax") = expValueMax
+      //Rcpp::Named("split_words") = wordDelimiterChars,
+      //Rcpp::Named("split_sents") = endOfSentenceChars
     )
   );
   out.attr("class") = "word2vec_trained";
   return out;
 }
 
-
+/*
 // [[Rcpp::export]]
 Rcpp::List w2v_load_model(std::string file, bool normalize = true) {
   bool normalise = normalize;
@@ -205,6 +211,7 @@ bool w2v_save_model(SEXP ptr, std::string file) {
   bool success = model->save(file);
   return success;
 }
+*/
 
 // [[Rcpp::export]]
 std::vector<std::string> w2v_dictionary(SEXP ptr) {
@@ -409,6 +416,7 @@ Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize,
   return embedding_default;
 }
 
+/* NOTE: temporarily disabled
 
 
 // [[Rcpp::export]]
@@ -465,3 +473,5 @@ Rcpp::DataFrame d2vec_nearest(SEXP ptr_w2v, SEXP ptr_d2v, Rcpp::StringVector x,
   );
   return out;
 }
+
+ */
