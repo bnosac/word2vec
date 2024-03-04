@@ -182,10 +182,15 @@ word2vec.list <- function(x,
     iter <- as.integer(iter)
     lr <- as.numeric(lr)
     skipgram <- as.logical(type %in% "skip-gram")
-    encoding <- "UTF-8"
-    model <- w2v_train(x, stopwords,
-                       modelFile = model, 
-                       minWordFreq = min_count,
+    
+    vocaburary <- unique(unlist(x, use.names = FALSE))
+    vocaburary <- setdiff(vocaburary, stopwords)
+    x <- lapply(x, function(x) {
+        v <- fastmatch::fmatch(x, vocaburary)
+        v[is.na(v)] <- 0L
+        return(v)
+    })
+    model <- w2v_train(x, vocaburary, minWordFreq = min_count,
                        size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
                        sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
                        alpha = lr, withSG = skipgram, ...)
