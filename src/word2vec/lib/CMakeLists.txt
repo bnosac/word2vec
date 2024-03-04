@@ -37,5 +37,3 @@ target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 install(FILES ${PROJECT_INCLUDE_DIR}/word2vec.hpp DESTINATION include)
-install(FILES ${PROJECT_INCLUDE_DIR}/mapper.hpp DESTINATION include)
-install(FILES ${PROJECT_INCLUDE_DIR}/wordReader.hpp DESTINATION include)
