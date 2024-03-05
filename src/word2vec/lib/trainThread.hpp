@@ -18,8 +18,6 @@
 #include <stdexcept>
 
 #include "word2vec.hpp"
-//#include "wordReader.hpp"
-//#include "vocabulary.hpp"
 #include "huffmanTree.hpp"
 #include "nsDistribution.hpp"
 #include "downSampling.hpp"

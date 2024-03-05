@@ -7,8 +7,6 @@
 */
 #include <Rcpp.h>
 #include "word2vec.hpp"
-#include "wordReader.hpp"
-//#include "vocabulary.hpp"
 #include "trainer.hpp"
 
 namespace w2v {

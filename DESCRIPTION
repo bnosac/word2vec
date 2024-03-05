@@ -13,8 +13,8 @@ Description: Learn vector representations of words by continuous bag of words an
 URL: https://github.com/bnosac/word2vec
 License: Apache License (>= 2.0)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
 Depends: R (>= 2.10)
-Imports: Rcpp (>= 0.11.5), stats
+Imports: Rcpp (>= 0.11.5), stats, fastmatch
 LinkingTo: Rcpp, RcppProgress
 Suggests: udpipe

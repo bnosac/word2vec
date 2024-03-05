@@ -5,7 +5,6 @@
 #include <iostream>
 #include <iomanip>
 #include "word2vec.hpp"
-#include "wordReader.hpp"
 #include <unordered_map>
 
 // [[Rcpp::depends(RcppProgress)]]
@@ -82,29 +81,6 @@ Rcpp::List w2v_train(Rcpp::List texts_,
   if (verbose) { // NOTE: consider removing progress bar
     Progress p(100, true);
     trained = model->train(trainSettings, corpus, 
-                           //trainFile, stopWordsFile, // NOTE: remove
-                           // [&p] (float _percent) {
-                           //   p.update(_percent / 2);
-                           //   /*
-                           //    std::cout << "\rParsing train data... "
-                           //              << std::fixed << std::setprecision(2)
-                           //              << _percent << "%" << std::flush;
-                           //    */
-                           // },
-                           // [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
-                           //   /*
-                           //    Rcpp::Rcerr << std::endl
-                           //                << "Finished reading data: " << std::endl
-                           //                << "Vocabulary size: " << _vocWords << std::endl
-                           //                << "Train words: " << _trainWords << std::endl
-                           //                << "Total words: " << _totalWords << std::endl
-                           //                << "Start training" << std::endl
-                           //                << std::endl;
-                           //    */
-                           //   vocWords = _vocWords;
-                           //   trainWords = _trainWords;
-                           //   totalWords = _totalWords;
-                           // },
                            [&p] (float _alpha, float _percent) {
                              /*
                               std::cout << '\r'
@@ -119,26 +95,8 @@ Rcpp::List w2v_train(Rcpp::List texts_,
                              p.update(_percent);
                            }
     );
-    //std::cout << std::endl;
   } else {
-    trained = model->train(trainSettings, corpus, 
-                           //trainFile, stopWordsFile, // NOTE: remove
-                           // nullptr, 
-                           // [&vocWords, &trainWords, &totalWords] (std::size_t _vocWords, std::size_t _trainWords, std::size_t _totalWords) {
-                           //   /*
-                           //    Rcpp::Rcerr << std::endl
-                           //                << "Finished reading data: " << std::endl
-                           //                << "Vocabulary size: " << _vocWords << std::endl
-                           //                << "Train words: " << _trainWords << std::endl
-                           //                << "Total words: " << _totalWords << std::endl
-                           //                << "Start training" << std::endl
-                           //                << std::endl;
-                           //    */
-                           //   vocWords = _vocWords;
-                           //   trainWords = _trainWords;
-                           //   totalWords = _totalWords;
-                           // },
-                           nullptr);
+    trained = model->train(trainSettings, corpus, nullptr);
   }
   Rcpp::Rcout << "Training done\n";
   //return Rcpp::List::create();
@@ -313,6 +271,8 @@ Rcpp::List w2v_nearest_vector(SEXP ptr,
   return out;
 }
 
+/* NOTE: temporarily disabled
+ 
 // [[Rcpp::export]]
 Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize, std::size_t n) {
   try {
@@ -415,9 +375,6 @@ Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize,
   Rcpp::NumericMatrix embedding_default;
   return embedding_default;
 }
-
-/* NOTE: temporarily disabled
-
 
 // [[Rcpp::export]]
 Rcpp::List d2vec(SEXP ptr, Rcpp::StringVector x, std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r") {

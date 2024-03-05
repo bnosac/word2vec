@@ -88,6 +88,7 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
 // w2v_read_binary
 Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize, std::size_t n);
 RcppExport SEXP _word2vec_w2v_read_binary(SEXP modelFileSEXP, SEXP normalizeSEXP, SEXP nSEXP) {
@@ -101,6 +102,7 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
 
 static const R_CallMethodDef CallEntries[] = {
     {"_word2vec_w2v_train", (DL_FUNC) &_word2vec_w2v_train, 17},
