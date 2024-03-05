@@ -27,8 +27,8 @@ ordered from high to low similarity and keeping only the top_n most similar reco
 \description{
 The similarity between word vectors is defined 
 \itemize{
- \item{for type 'dot': }{as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero}
- \item{for type 'cosine': }{as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) }
+ \item{for type 'dot': as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero}
+ \item{for type 'cosine': as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) }
 }
 }
 \examples{
