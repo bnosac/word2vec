@@ -89,28 +89,12 @@ BEGIN_RCPP
 END_RCPP
 }
 
-// w2v_read_binary
-Rcpp::NumericMatrix w2v_read_binary(const std::string modelFile, bool normalize, std::size_t n);
-RcppExport SEXP _word2vec_w2v_read_binary(SEXP modelFileSEXP, SEXP normalizeSEXP, SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string >::type modelFile(modelFileSEXP);
-    Rcpp::traits::input_parameter< bool >::type normalize(normalizeSEXP);
-    Rcpp::traits::input_parameter< std::size_t >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(w2v_read_binary(modelFile, normalize, n));
-    return rcpp_result_gen;
-END_RCPP
-}
-
-
 static const R_CallMethodDef CallEntries[] = {
     {"_word2vec_w2v_train", (DL_FUNC) &_word2vec_w2v_train, 17},
     {"_word2vec_w2v_dictionary", (DL_FUNC) &_word2vec_w2v_dictionary, 1},
     {"_word2vec_w2v_embedding", (DL_FUNC) &_word2vec_w2v_embedding, 2},
     {"_word2vec_w2v_nearest", (DL_FUNC) &_word2vec_w2v_nearest, 4},
     {"_word2vec_w2v_nearest_vector", (DL_FUNC) &_word2vec_w2v_nearest_vector, 4},
-    {"_word2vec_w2v_read_binary", (DL_FUNC) &_word2vec_w2v_read_binary, 3},
     {NULL, NULL, 0}
 };
 
