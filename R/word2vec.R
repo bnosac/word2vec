@@ -156,13 +156,14 @@ word2vec <- function(x,
 #' modelb <- word2vec(x = txt, dim = 15, iter = 20, split = c(" \n\r", "\n\r"))
 #' all.equal(as.matrix(modela), as.matrix(modelb))
 #' \dontshow{\} # End of main if statement running only if the required packages are installed}
-word2vec.list <- function(x,
+word2vec.tokens <- function(x,
                           type = c("cbow", "skip-gram"),
                           dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
                           iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
                           stopwords = integer(),
                           threads = 1L,
                           ...){
+    
     #x <- lapply(x, as.character)
     type <- match.arg(type)
     stopwords <- as.integer(stopwords)
@@ -183,14 +184,7 @@ word2vec.list <- function(x,
     lr <- as.numeric(lr)
     skipgram <- as.logical(type %in% "skip-gram")
    
-    vocaburary <- unique(unlist(x, use.names = FALSE))
-    vocaburary <- setdiff(vocaburary, stopwords)
-    x <- lapply(x, function(x) {
-        v <- fastmatch::fmatch(x, vocaburary)
-        v[is.na(v)] <- 0L
-        return(v)
-    })
-    model <- w2v_train(x, vocaburary, minWordFreq = min_count,
+    model <- w2v_train(x, attr(x, "types"), minWordFreq = min_count,
                        size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
                        sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
                        alpha = lr, withSG = skipgram, ...)
@@ -198,6 +192,26 @@ word2vec.list <- function(x,
     model
 }
 
+#' @export
+word2vec.list <- function(x, ...){
+    if (!is.character(attr(x, "types"))) {
+        x <- serialize(x, stopwords)
+        class(x) <- "tokens"
+    }
+    word2vec(x, ...)
+}
+
+serialize <- function(x, stopwords) {
+    vocaburary <- unique(unlist(x, use.names = FALSE))
+    vocaburary <- setdiff(vocaburary, stopwords)
+    x <- lapply(x, function(x) {
+        v <- fastmatch::fmatch(x, vocaburary)
+        v[is.na(v)] <- 0L
+        return(v)
+    })
+    attr(x, "types") <- vocaburary
+    return(x)
+}
 
 #' @title Get the word vectors of a word2vec model
 #' @description Get the word vectors of a word2vec model as a dense matrix.
