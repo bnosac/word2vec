@@ -9,11 +9,11 @@ Authors@R: c(
     person('Max', 'Fomichev', role = c('ctb', 'cph'), comment = "Code in src/word2vec"))
 Maintainer: Jan Wijffels <jwijffels@bnosac.be>
 Description: Learn vector representations of words by continuous bag of words and skip-gram implementations of the 'word2vec' algorithm. 
-    The techniques are detailed in the paper "Distributed Representations of Words and Phrases and their Compositionality" by Mikolov et al. (2013), available at <arXiv:1310.4546>.
+    The techniques are detailed in the paper "Distributed Representations of Words and Phrases and their Compositionality" by Mikolov et al. (2013), available at <doi:10.48550/arXiv.1310.4546>.
 URL: https://github.com/bnosac/word2vec
 License: Apache License (>= 2.0)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Depends: R (>= 2.10)
 Imports: Rcpp (>= 0.11.5), stats
 LinkingTo: Rcpp, RcppProgress
