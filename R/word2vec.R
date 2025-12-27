@@ -126,75 +126,6 @@ word2vec <- function(x,
     UseMethod("word2vec")
 }
 
-#' @inherit word2vec title description params details seealso return references examples
-#' @param split a character vector of length 2 where the first element indicates how to split words and the second element indicates how to split sentences in \code{x}
-#' @param encoding the encoding of \code{x} and \code{stopwords}. Defaults to 'UTF-8'. 
-#' Calculating the model always starts from files allowing to build a model on large corpora. The encoding argument 
-#' is passed on to \code{file} when writing \code{x} to hard disk in case you provided it as a character vector. 
-#' @param useBytes logical passed on to \code{\link{writeLines}} when writing the text and stopwords on disk before building the model. Defaults to \code{TRUE}.
-#' @export
-word2vec.character <- function(x,
-                               type = c("cbow", "skip-gram"),
-                               dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
-                               iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
-                               stopwords = character(),
-                               threads = 1L,
-                               split = c(" \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r", 
-                                         ".\n?!"),
-                               encoding = "UTF-8",
-                               useBytes = TRUE,
-                               ...){
-    type <- match.arg(type)
-    stopw <- stopwords
-    model <- file.path(tempdir(), "w2v.bin")
-    if(length(stopw) == 0){
-        stopw <- ""
-    }
-    file_stopwords <- tempfile()
-    filehandle_stopwords <- file(file_stopwords, open = "wt", encoding = encoding)
-    writeLines(stopw, con = filehandle_stopwords, useBytes = useBytes)
-    close(filehandle_stopwords)
-    on.exit({
-        if (file.exists(file_stopwords)) file.remove(file_stopwords)
-    })
-    if(length(x) == 1){
-         file_train <- x
-    }else{
-        file_train <- tempfile(pattern = "textspace_", fileext = ".txt")
-        on.exit({
-            if (file.exists(file_stopwords)) file.remove(file_stopwords)
-            if (file.exists(file_train)) file.remove(file_train)
-        })
-        filehandle_train <- file(file_train, open = "wt", encoding = encoding)
-        writeLines(text = x, con = filehandle_train, useBytes = useBytes)  
-        close(filehandle_train)
-    }
-    #expTableSize <- 1000L
-    #expValueMax <- 6L
-    #expTableSize <- as.integer(expTableSize)
-    #expValueMax <- as.integer(expValueMax)
-    min_count <- as.integer(min_count)
-    dim <- as.integer(dim)
-    window <- as.integer(window)
-    iter <- as.integer(iter)
-    sample <- as.numeric(sample)
-    hs <- as.logical(hs)
-    negative <- as.integer(negative)
-    threads <- as.integer(threads)
-    iter <- as.integer(iter)
-    lr <- as.numeric(lr)
-    skipgram <- as.logical(type %in% "skip-gram")
-    split <- as.character(split)
-    model <- w2v_train(list(), character(), 
-                       trainFile = file_train, modelFile = model, stopWordsFile = file_stopwords,
-                       minWordFreq = min_count,
-                       size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
-                       sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
-                       alpha = lr, withSG = skipgram, wordDelimiterChars = split[1], endOfSentenceChars = split[2], ...)
-    model$data$stopwords <- stopwords
-    model
-}
-
 #' @inherit word2vec title description params details seealso return references
 #' @export
 #' @examples 
@@ -229,12 +160,12 @@ word2vec.list <- function(x,
                           type = c("cbow", "skip-gram"),
                           dim = 50, window = ifelse(type == "cbow", 5L, 10L), 
                           iter = 5L, lr = 0.05, hs = FALSE, negative = 5L, sample = 0.001, min_count = 5L, 
-                          stopwords = character(),
+                          stopwords = integer(),
                           threads = 1L,
                           ...){
-    x <- lapply(x, as.character)
+    #x <- lapply(x, as.character)
     type <- match.arg(type)
-    stopwords <- as.character(stopwords)
+    stopwords <- as.integer(stopwords)
     model <- file.path(tempdir(), "w2v.bin")
     #expTableSize <- 1000L
     #expValueMax <- 6L
@@ -253,11 +184,11 @@ word2vec.list <- function(x,
     skipgram <- as.logical(type %in% "skip-gram")
     encoding <- "UTF-8"
     model <- w2v_train(x, stopwords,
-                       trainFile = "", modelFile = model, stopWordsFile = "",
+                       modelFile = model, 
                        minWordFreq = min_count,
                        size = dim, window = window, #expTableSize = expTableSize, expValueMax = expValueMax, 
                        sample = sample, withHS = hs, negative = negative, threads = threads, iterations = iter,
-                       alpha = lr, withSG = skipgram, wordDelimiterChars = "", endOfSentenceChars = "", ...)
+                       alpha = lr, withSG = skipgram, ...)
     model$data$stopwords <- stopwords
     model
 }

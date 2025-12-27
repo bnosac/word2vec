@@ -18,8 +18,8 @@ set(PRJ_SRCS
 #        ${PROJECT_INCLUDE_DIR}/word2vec.h
 #        ${PROJECT_SOURCE_DIR}/c_binding.cpp
         ${PROJECT_SOURCE_DIR}/mapper.cpp
-        ${PROJECT_SOURCE_DIR}/vocabulary.hpp
-        ${PROJECT_SOURCE_DIR}/vocabulary.cpp
+#        ${PROJECT_SOURCE_DIR}/vocabulary.hpp
+#        ${PROJECT_SOURCE_DIR}/vocabulary.cpp
         ${PROJECT_SOURCE_DIR}/huffmanTree.hpp
         ${PROJECT_SOURCE_DIR}/huffmanTree.cpp
         ${PROJECT_SOURCE_DIR}/nsDistribution.hpp

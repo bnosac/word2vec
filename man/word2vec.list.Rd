@@ -15,7 +15,7 @@
   negative = 5L,
   sample = 0.001,
   min_count = 5L,
-  stopwords = character(),
+  stopwords = integer(),
   threads = 1L,
   ...
 )

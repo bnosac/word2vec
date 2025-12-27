@@ -13,24 +13,19 @@ namespace w2v {
             m_sharedData(_sharedData), m_randomDevice(), m_randomGenerator(m_randomDevice()),
             m_rndWindowShift(0, static_cast<short>((m_sharedData.trainSettings->window - 1))),
             m_downSampling(), m_nsDistribution(), m_hiddenLayerVals(), m_hiddenLayerErrors(),
-            m_wordReader(), m_thread() {
+            m_thread() {
 
         if (!m_sharedData.trainSettings) {
             throw std::runtime_error("train settings are not initialized");
         }
-        if (!m_sharedData.vocabulary) {
-            throw std::runtime_error("vocabulary object is not initialized");
-        }
 
         if (m_sharedData.trainSettings->sample > 0.0f) {
             m_downSampling.reset(new downSampling_t(m_sharedData.trainSettings->sample,
-                                                    m_sharedData.vocabulary->trainWords()));
+                                                    m_sharedData.corpus->trainWords));
         }
 
         if (m_sharedData.trainSettings->negative > 0) {
-            std::vector<std::size_t> frequencies;
-            m_sharedData.vocabulary->frequencies(frequencies);
-            m_nsDistribution.reset(new nsDistribution_t(frequencies));
+            m_nsDistribution.reset(new nsDistribution_t(m_sharedData.corpus->frequency));
         }
 
         if (m_sharedData.trainSettings->withHS && !m_sharedData.huffmanTree) {
@@ -42,43 +37,31 @@ namespace w2v {
             m_hiddenLayerVals.reset(new std::vector<float>(m_sharedData.trainSettings->size));
         }
 
-        if (!m_sharedData.corpus && !m_sharedData.fileMapper) {
-            throw std::runtime_error("corpus and file mapper objects are not initialized");
+        if (!m_sharedData.corpus) {
+            throw std::runtime_error("corpus object is not initialized");
         }
-        if (m_sharedData.fileMapper) {
-            auto shift = m_sharedData.fileMapper->size() / m_sharedData.trainSettings->threads;
-            auto startFrom = shift * _id;
-            auto stopAt = (_id == m_sharedData.trainSettings->threads - 1)
-                          ? (m_sharedData.fileMapper->size() - 1) : (shift * (_id + 1));
-            m_wordReader.reset(new wordReader_t<fileMapper_t>(*m_sharedData.fileMapper,
-                                                              m_sharedData.trainSettings->wordDelimiterChars,
-                                                              m_sharedData.trainSettings->endOfSentenceChars,
-                                                              startFrom, stopAt));
-        } else {
-            // NOTE: specify range for workers
-            auto n = m_sharedData.corpus->texts.size();
-            auto threads = m_sharedData.trainSettings->threads;
-            range = std::make_pair(floor((n / threads) * _id),
-                                   floor((n / threads) * (_id + 1)) - 1);
-        }
+        
+        // NOTE: specify range for workers
+        auto n = m_sharedData.corpus->texts.size();
+        auto threads = m_sharedData.trainSettings->threads;
+        range = std::make_pair(floor((n / threads) * _id),
+                               floor((n / threads) * (_id + 1)) - 1);
+        
     }
 
     void trainThread_t::worker(std::vector<float> &_trainMatrix) noexcept {
         
         for (auto g = m_sharedData.trainSettings->iterations; g > 0; --g) {
-            //Rcpp::Rcout << "g: " << (int)g << "\n";
-            bool exitFlag = false;
+            
             std::size_t threadProcessedWords = 0;
             std::size_t prvThreadProcessedWords = 0;
 
-            if (m_sharedData.fileMapper)
-                m_wordReader->reset();
-
-            std::size_t h = range.first; // NOTE: only used for corpus
             auto wordsPerAllThreads = m_sharedData.trainSettings->iterations
-                                      * m_sharedData.vocabulary->trainWords();
+                                      * m_sharedData.corpus->trainWords;
             auto wordsPerAlpha = wordsPerAllThreads / 10000;
-            while (!exitFlag) {
+
+            for (std::size_t h = range.first; h <= range.second; ++h) {
+
                 // calc alpha
                 if (threadProcessedWords - prvThreadProcessedWords > wordsPerAlpha) { // next 0.01% processed
                     *m_sharedData.processedWords += threadProcessedWords - prvThreadProcessedWords;
@@ -98,79 +81,42 @@ namespace w2v {
                     }
                 }
                 
+                text_t text = m_sharedData.corpus->texts[h];
+                
                 // read sentence
-                std::vector<const vocabulary_t::wordData_t *> sentence;
-                if (m_sharedData.fileMapper) {
-                    while (true) {
-                        std::string word;
-                        if (!m_wordReader->nextWord(word)) {
-                            exitFlag = true; // EOF or end of requested region
-                            break;
-                        }
-                        if (word.empty()) {
-                            break; // end of sentence
-                        }
-                        
-                        auto wordData = m_sharedData.vocabulary->data(word);
-                        if (wordData == nullptr) {
-                            continue; // no such word
-                        }
-    
-                        threadProcessedWords++;
-    
-                        if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
-                            if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
-                                continue; // skip this word
-                            }
-                        }
-                        //if (h == 1)
-                        //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
-                        sentence.push_back(wordData);
-                    }
-                    
-                } else {
-                    // Rcpp::Rcout << "h: " << h << "\n";
-                    if (h > range.second) {
-                        exitFlag = true; // EOF or end of requested region
-                        break;
-                    }
-                    text_t text = m_sharedData.corpus->texts[h];
-                    
-                    for (size_t i = 0; i < text.size(); i++) {
+                std::vector<unsigned int> sentence;
+                sentence.reserve(text.size());
+                for (size_t i = 0; i < text.size(); ++i) {
 
-                        std::string word = text[i];
-                        if (word.empty()) {
-                            continue; // padding
-                        }
-                        auto wordData = m_sharedData.vocabulary->data(word);
-                        if (wordData == nullptr) {
-                            continue; // no such word
-                        }
-                        
-                        threadProcessedWords++;
-                        
-                        if (m_sharedData.trainSettings->sample > 0.0f) { // down-sampling...
-                            if ((*m_downSampling)(wordData->frequency, m_randomGenerator)) {
-                                continue; // skip this word
-                            }
-                        }
-                        //if (h == 1)
-                        //    Rcpp::Rcout << word << ": " << wordData->index << "\n";
-                        sentence.push_back(wordData);
+                    auto &word = text[i];
+                    if (word == 0) { // padding
+                        continue; 
                     }
+
+                    threadProcessedWords++;
+                    
+                    if (m_sharedData.trainSettings->sample > 0.0f) {
+                        if ((*m_downSampling)(m_sharedData.corpus->frequency[word - 1], m_randomGenerator)) {
+                            continue; // skip this word
+                        }
+                    }
+                    sentence.push_back(word - 1); // zero-based index of words
                 }
+                
                 if (m_sharedData.trainSettings->withSG) {
                     skipGram(sentence, _trainMatrix);
                 } else {
                     cbow(sentence, _trainMatrix);
                 }
-                h++; // move to next text
             }
         }
     }
 
-    inline void trainThread_t::cbow(const std::vector<const vocabulary_t::wordData_t *> &_sentence,
+    inline void trainThread_t::cbow(const std::vector<unsigned int> &_sentence,
                                     std::vector<float> &_trainMatrix) noexcept {
+        
+        if (_sentence.size() == 0)
+            return;
         for (std::size_t i = 0; i < _sentence.size(); ++i) {
             // hidden layers initialized with 0 values
             std::memset(m_hiddenLayerVals->data(), 0, m_hiddenLayerVals->size() * sizeof(float));
@@ -188,7 +134,7 @@ namespace w2v {
                     continue;
                 }
                 for (std::size_t k = 0; k < m_sharedData.trainSettings->size; ++k) {
-                    (*m_hiddenLayerVals)[k] += _trainMatrix[k + _sentence[posRndWindow]->index
+                    (*m_hiddenLayerVals)[k] += _trainMatrix[k + _sentence[posRndWindow]
                                                            * m_sharedData.trainSettings->size];
                 }
                 cw++;
@@ -199,13 +145,13 @@ namespace w2v {
             for (std::size_t j = 0; j < m_sharedData.trainSettings->size; j++) {
                 (*m_hiddenLayerVals)[j] /= cw;
             }
-
+            
             if (m_sharedData.trainSettings->withHS) {
-                hierarchicalSoftmax(_sentence[i]->index, *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
+                hierarchicalSoftmax(_sentence[i], *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
             } else {
-                negativeSampling(_sentence[i]->index, *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
+                negativeSampling(_sentence[i], *m_hiddenLayerErrors, *m_hiddenLayerVals, 0);
             }
-
+            
             // hidden -> in
             for (auto j = rndShift; j < m_sharedData.trainSettings->window * 2 + 1 - rndShift; ++j) {
                 if (j == m_sharedData.trainSettings->window) {
@@ -217,15 +163,17 @@ namespace w2v {
                     continue;
                 }
                 for (std::size_t k = 0; k < m_sharedData.trainSettings->size; ++k) {
-                    _trainMatrix[k + _sentence[posRndWindow]->index * m_sharedData.trainSettings->size]
+                    _trainMatrix[k + _sentence[posRndWindow] * m_sharedData.trainSettings->size]
                             += (*m_hiddenLayerErrors)[k];
                 }
             }
         }
     }
 
-    inline void trainThread_t::skipGram(const std::vector<const vocabulary_t::wordData_t *> &_sentence,
+    inline void trainThread_t::skipGram(const std::vector<unsigned int> &_sentence,
                                         std::vector<float> &_trainMatrix) noexcept {
+        if (_sentence.size() == 0)
+            return;
         for (std::size_t i = 0; i < _sentence.size(); ++i) {
             auto rndShift = m_rndWindowShift(m_randomGenerator);
             for (auto j = rndShift; j < m_sharedData.trainSettings->window * 2 + 1 - rndShift; ++j) {
@@ -238,15 +186,15 @@ namespace w2v {
                     continue;
                 }
                 // shift to the selected word vector in the matrix
-                auto shift = _sentence[posRndWindow]->index * m_sharedData.trainSettings->size;
+                auto shift = _sentence[posRndWindow] * m_sharedData.trainSettings->size;
 
                 // hidden layer initialized with 0 values
                 std::memset(m_hiddenLayerErrors->data(), 0, m_hiddenLayerErrors->size() * sizeof(float));
 
                 if (m_sharedData.trainSettings->withHS) {
-                    hierarchicalSoftmax(_sentence[i]->index, (*m_hiddenLayerErrors), _trainMatrix, shift);
+                    hierarchicalSoftmax(_sentence[i], (*m_hiddenLayerErrors), _trainMatrix, shift);
                 } else {
-                    negativeSampling(_sentence[i]->index, (*m_hiddenLayerErrors), _trainMatrix, shift);
+                    negativeSampling(_sentence[i], (*m_hiddenLayerErrors), _trainMatrix, shift);
                 }
 
                 for (std::size_t k = 0; k < m_sharedData.trainSettings->size; ++k) {

@@ -19,9 +19,13 @@
 #include <cmath>
 #include <stdexcept>
 
-typedef std::vector<std::string> words_t;
-typedef std::vector<std::string> text_t;
+typedef std::vector<std::string> types_t;
+// typedef std::vector<std::string> words_t;
+// typedef std::vector<std::string> text_t;
+typedef std::vector<int> words_t;
+typedef std::vector<int> text_t;
 typedef std::vector<text_t> texts_t;
+typedef std::vector<size_t> frequency_t;
 
 namespace w2v {
     
@@ -31,12 +35,44 @@ namespace w2v {
     class corpus_t final {
     public:
         texts_t texts;
-        words_t stopWords;
+        types_t types;
+        frequency_t frequency;
+        size_t totalWords;
+        size_t trainWords;
         
         // Constructors
         corpus_t(): texts() {}
-        corpus_t(texts_t _texts, words_t _stopWords): texts(_texts), stopWords(_stopWords) {}
-        
+        corpus_t(texts_t _texts, types_t _types): 
+             texts(_texts), types(_types) {}
+
+        void setWordFreq() {
+            
+            frequency = frequency_t(types.size(), 0);
+            totalWords = 0;
+            trainWords = 0;
+            for (size_t h = 0; h < texts.size(); h++) {
+                text_t text = texts[h];
+                for (size_t i = 0; i < text.size(); i++) {
+                    totalWords++;
+                    auto &word = text[i];
+                    //Rcpp::Rcout << i << ": " << word << "\n"; 
+                    if (word < 0 || types.size() < word)
+                        throw std::range_error("setWordFreq: invalid types");
+                    if (word == 0) // padding
+                        continue;
+                    // if (types[word - 1].empty()) {
+                    //     word = 0; // remove and pad
+                    //     continue;
+                    // }
+                    frequency[word - 1]++;
+                    trainWords++;
+                }
+            }
+            Rcpp::Rcout << "trainWords: " << trainWords << "\n";
+            Rcpp::Rcout << "totalWords: " << totalWords << "\n";
+            Rcpp::Rcout << "frequency.size(): " << frequency.size() << "\n";
+            Rcpp::Rcout << "types.size(): " << types.size() << "\n";
+        }
     };
     
     /**
@@ -55,6 +91,7 @@ namespace w2v {
         uint8_t iterations = 5; ///< train iterations
         float alpha = 0.05f; ///< starting learn rate
         bool withSG = false; ///< use Skip-Gram instead of CBOW
+        // TODO: remove
         std::string wordDelimiterChars = " \n,.-!?:;/\"#$%&'()*+<=>@[]\\^_`{|}~\t\v\f\r";
         std::string endOfSentenceChars = ".\n?!";
         trainSettings_t() = default;
@@ -169,11 +206,6 @@ namespace w2v {
         /// Direct access to the word-vector map
         const map_t &map() {return m_map;}
 
-        /// pure virtual method to save model of a derived class
-        virtual bool save(const std::string &_modelFile) const noexcept = 0;
-        /// pure virtual method to load model of a derived class
-        virtual bool load(const std::string &_modelFile, bool normalize = true) noexcept = 0;
-        
         /**
          * Vector access by key value
          * @param _key key value uniquely identifying vector in model
@@ -291,16 +323,8 @@ namespace w2v {
         */
         bool train(const trainSettings_t &_trainSettings,
                    const corpus_t &_corpus,
-                   const std::string &_trainFile, // NOTE: remove
-                   const std::string &_stopWordsFile, // NOTE: remove
-                   vocabularyProgressCallback_t _vocabularyProgressCallback,
-                   vocabularyStatsCallback_t _vocabularyStatsCallback,
                    trainProgressCallback_t _trainProgressCallback) noexcept;
 
-        /// saves word vectors to file with _modelFile name
-        bool save(const std::string &_modelFile) const noexcept override;
-        /// loads word vectors from file with _modelFile name
-        bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
         /**
          * Normalise vectors
          */
@@ -354,9 +378,9 @@ namespace w2v {
             m_mapSize = m_map.size();
         }
         /// saves document vectors to file with _modelFile name
-        bool save(const std::string &_modelFile) const noexcept override;
+        //bool save(const std::string &_modelFile) const noexcept override;
         /// loads document vectors from file with _modelFile name
-        bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
+        //bool load(const std::string &_modelFile, bool normalize = true) noexcept override;
     };
 
     /**

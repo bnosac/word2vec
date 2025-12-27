@@ -15,8 +15,6 @@
 #include <stdexcept>
 
 #include "word2vec.hpp"
-#include "wordReader.hpp"
-#include "vocabulary.hpp"
 #include "trainThread.hpp"
 
 namespace w2v {
@@ -40,9 +38,7 @@ namespace w2v {
          * @param _progressCallback callback function to be called on each new 0.01% processed train data
         */
         trainer_t(const std::shared_ptr<trainSettings_t> &_trainSettings,
-                  const std::shared_ptr<vocabulary_t> &_vocabulary,
                   const std::shared_ptr<corpus_t> &_corpus,
-                  const std::shared_ptr<fileMapper_t> &_fileMapper, // NOTE: remove
                   std::function<void(float, float)> _progressCallback);
 
         /**
