@@ -69,9 +69,9 @@ namespace w2v {
             for (auto const &i:words) {
                 auto &v = m_map[i];
                 v.resize(m_vectorSize);
-                std::copy(&_trainMatrix[wordIndex * m_vectorSize],
-                          &_trainMatrix[(wordIndex + 1) * m_vectorSize],
-                          &v[0]);
+                std::copy(_trainMatrix.data() + wordIndex * m_vectorSize,
+                          _trainMatrix.data() + (wordIndex + 1) * m_vectorSize,
+                          v.data());
                 wordIndex++;
             }
 
