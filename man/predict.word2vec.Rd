@@ -30,15 +30,15 @@ for type 'nearest', \code{newdata} should be a character vector of words or a ma
 \value{
 depending on the type, you get a different result back:
 \itemize{
-\item{for type nearest: a list of data.frames with columns term, similarity and rank indicating with words which are closest to the provided \code{newdata} words or word vectors. If \code{newdata} is just one vector instead of a matrix, it returns a data.frame}
-\item{for type embedding: a matrix of word vectors of the words provided in \code{newdata}}
+\item for type nearest: a list of data.frames with columns term, similarity and rank indicating with words which are closest to the provided \code{newdata} words or word vectors. If \code{newdata} is just one vector instead of a matrix, it returns a data.frame
+\item for type embedding: a matrix of word vectors of the words provided in \code{newdata}
 }
 }
 \description{
 Get either 
 \itemize{
-\item{the embedding of words}
-\item{the nearest words which are similar to either a word or a word vector}
+\item the embedding of words
+\item the nearest words which are similar to either a word or a word vector
 }
 }
 \examples{

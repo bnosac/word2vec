@@ -25,11 +25,11 @@ keeping only alphanumeric elements
 \description{
 Standardise text by
 \itemize{
-\item{Conversion of text from UTF-8 to ASCII}
-\item{Keeping only alphanumeric characters: letters and numbers}
-\item{Removing multiple spaces}
-\item{Removing leading/trailing spaces}
-\item{Performing lowercasing}
+\item Conversion of text from UTF-8 to ASCII
+\item Keeping only alphanumeric characters: letters and numbers
+\item Removing multiple spaces
+\item Removing leading/trailing spaces
+\item Performing lowercasing
 }
 }
 \examples{

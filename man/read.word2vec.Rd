@@ -14,10 +14,10 @@ read.word2vec(file, normalize = FALSE)
 \value{
 an object of class w2v which is a list with elements
 \itemize{
-\item{model: a Rcpp pointer to the model}
-\item{model_path: the path to the model on disk}
-\item{dim: the dimension of the embedding matrix}
-\item{n: the number of words in the vocabulary}
+\item model: a Rcpp pointer to the model
+\item model_path: the path to the model on disk
+\item dim: the dimension of the embedding matrix
+\item n: the number of words in the vocabulary
 }
 }
 \description{

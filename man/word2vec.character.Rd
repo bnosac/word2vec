@@ -61,12 +61,12 @@ is passed on to \code{file} when writing \code{x} to hard disk in case you provi
 \value{
 an object of class \code{w2v_trained} which is a list with elements 
 \itemize{
-\item{model: a Rcpp pointer to the model}
-\item{data: a list with elements file: the training data used, stopwords: the character vector of stopwords, n}
-\item{vocabulary: the number of words in the vocabulary}
-\item{success: logical indicating if training succeeded}
-\item{error_log: the error log in case training failed}
-\item{control: as list of the training arguments used, namely min_count, dim, window, iter, lr, skipgram, hs, negative, sample, split_words, split_sents, expTableSize and expValueMax}
+\item model: a Rcpp pointer to the model
+\item data: a list with elements file: the training data used, stopwords: the character vector of stopwords, n
+\item vocabulary: the number of words in the vocabulary
+\item success: logical indicating if training succeeded
+\item error_log: the error log in case training failed
+\item control: as list of the training arguments used, namely min_count, dim, window, iter, lr, skipgram, hs, negative, sample, split_words, split_sents, expTableSize and expValueMax
 }
 }
 \description{
@@ -75,11 +75,11 @@ Construct a word2vec model on text. The algorithm is explained at \url{https://a
 \details{
 Some advice on the optimal set of parameters to use for training as defined by Mikolov et al.
 \itemize{
-\item{argument type: skip-gram (slower, better for infrequent words) vs cbow (fast)}
-\item{argument hs: the training algorithm: hierarchical softmax (better for infrequent words) vs negative sampling (better for frequent words, better with low dimensional vectors)}
-\item{argument dim: dimensionality of the word vectors: usually more is better, but not always}
-\item{argument window: for skip-gram usually around 10, for cbow around 5}
-\item{argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)}
+\item argument type: skip-gram (slower, better for infrequent words) vs cbow (fast)
+\item argument hs: the training algorithm: hierarchical softmax (better for infrequent words) vs negative sampling (better for frequent words, better with low dimensional vectors)
+\item argument dim: dimensionality of the word vectors: usually more is better, but not always
+\item argument window: for skip-gram usually around 10, for cbow around 5
+\item argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)
 }
 }
 \examples{

@@ -15,28 +15,28 @@
 #' @param ... further arguments passed on to the methods \code{\link{word2vec.character}}, \code{\link{word2vec.list}} as well as the C++ function \code{w2v_train} - for expert use only
 #' @return an object of class \code{w2v_trained} which is a list with elements 
 #' \itemize{
-#' \item{model: a Rcpp pointer to the model}
-#' \item{data: a list with elements file: the training data used, stopwords: the character vector of stopwords, n}
-#' \item{vocabulary: the number of words in the vocabulary}
-#' \item{success: logical indicating if training succeeded}
-#' \item{error_log: the error log in case training failed}
-#' \item{control: as list of the training arguments used, namely min_count, dim, window, iter, lr, skipgram, hs, negative, sample, split_words, split_sents, expTableSize and expValueMax}
+#' \item model: a Rcpp pointer to the model
+#' \item data: a list with elements file: the training data used, stopwords: the character vector of stopwords, n
+#' \item vocabulary: the number of words in the vocabulary
+#' \item success: logical indicating if training succeeded
+#' \item error_log: the error log in case training failed
+#' \item control: as list of the training arguments used, namely min_count, dim, window, iter, lr, skipgram, hs, negative, sample, split_words, split_sents, expTableSize and expValueMax
 #' }
 #' @references \url{https://github.com/maxoodf/word2vec}, \url{https://arxiv.org/pdf/1310.4546.pdf}
 #' @details 
 #' Some advice on the optimal set of parameters to use for training as defined by Mikolov et al.
 #' \itemize{
-#' \item{argument type: skip-gram (slower, better for infrequent words) vs cbow (fast)}
-#' \item{argument hs: the training algorithm: hierarchical softmax (better for infrequent words) vs negative sampling (better for frequent words, better with low dimensional vectors)}
-#' \item{argument dim: dimensionality of the word vectors: usually more is better, but not always}
-#' \item{argument window: for skip-gram usually around 10, for cbow around 5}
-#' \item{argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)}
+#' \item argument type: skip-gram (slower, better for infrequent words) vs cbow (fast)
+#' \item argument hs: the training algorithm: hierarchical softmax (better for infrequent words) vs negative sampling (better for frequent words, better with low dimensional vectors)
+#' \item argument dim: dimensionality of the word vectors: usually more is better, but not always
+#' \item argument window: for skip-gram usually around 10, for cbow around 5
+#' \item argument sample: sub-sampling of frequent words: can improve both accuracy and speed for large data sets (useful values are in range 0.001 to 0.00001)
 #' }
 #' @note
 #' Some notes on the tokenisation
 #' \itemize{
-#' \item{If you provide to \code{x} a list, each list element should correspond to a sentence (or what you consider as a sentence) and should contain a character vector of tokens. The word2vec model is then executed using \code{\link{word2vec.list}}}
-#' \item{If you provide to \code{x} a character vector or the path to the file on disk, the tokenisation into words depends on the first element provided in \code{split} and the tokenisation into sentences depends on the second element provided in \code{split} when passed on to \code{\link{word2vec.character}}}
+#' \item If you provide to \code{x} a list, each list element should correspond to a sentence (or what you consider as a sentence) and should contain a character vector of tokens. The word2vec model is then executed using \code{\link{word2vec.list}}
+#' \item If you provide to \code{x} a character vector or the path to the file on disk, the tokenisation into words depends on the first element provided in \code{split} and the tokenisation into sentences depends on the second element provided in \code{split} when passed on to \code{\link{word2vec.character}}
 #' }
 #' @seealso \code{\link{predict.word2vec}}, \code{\link{as.matrix.word2vec}}, \code{\link{word2vec}}, \code{\link{word2vec.character}}, \code{\link{word2vec.list}}
 #' @export
@@ -349,10 +349,10 @@ write.word2vec <- function(x, file, type = c("bin", "txt"), encoding = "UTF-8"){
 #' @param normalize logical indicating to normalize the embeddings by dividing by the factor (sqrt(sum(x . x) / length(x))). Defaults to FALSE. 
 #' @return an object of class w2v which is a list with elements
 #' \itemize{
-#' \item{model: a Rcpp pointer to the model}
-#' \item{model_path: the path to the model on disk}
-#' \item{dim: the dimension of the embedding matrix}
-#' \item{n: the number of words in the vocabulary}
+#' \item model: a Rcpp pointer to the model
+#' \item model_path: the path to the model on disk
+#' \item dim: the dimension of the embedding matrix
+#' \item n: the number of words in the vocabulary
 #' }
 #' @export
 #' @examples
@@ -445,8 +445,8 @@ summary.word2vec_trained <- function(object, type = "vocabulary", ...){
 #' @title Predict functionalities for a word2vec model
 #' @description Get either 
 #' \itemize{
-#' \item{the embedding of words}
-#' \item{the nearest words which are similar to either a word or a word vector}
+#' \item the embedding of words
+#' \item the nearest words which are similar to either a word or a word vector
 #' }
 #' @param object a word2vec model as returned by \code{\link{word2vec}} or \code{\link{read.word2vec}}
 #' @param newdata for type 'embedding', \code{newdata} should be a character vector of words\cr
@@ -457,8 +457,8 @@ summary.word2vec_trained <- function(object, type = "vocabulary", ...){
 #' @param ... not used
 #' @return depending on the type, you get a different result back:
 #' \itemize{
-#' \item{for type nearest: a list of data.frames with columns term, similarity and rank indicating with words which are closest to the provided \code{newdata} words or word vectors. If \code{newdata} is just one vector instead of a matrix, it returns a data.frame}
-#' \item{for type embedding: a matrix of word vectors of the words provided in \code{newdata}}
+#' \item for type nearest: a list of data.frames with columns term, similarity and rank indicating with words which are closest to the provided \code{newdata} words or word vectors. If \code{newdata} is just one vector instead of a matrix, it returns a data.frame
+#' \item for type embedding: a matrix of word vectors of the words provided in \code{newdata}
 #' }
 #' @seealso \code{\link{word2vec}}, \code{\link{read.word2vec}}
 #' @export
@@ -523,8 +523,8 @@ predict.word2vec_trained <- function(object, newdata, type = c("nearest", "embed
 #' @title Similarity between word vectors as used in word2vec
 #' @description The similarity between word vectors is defined 
 #' \itemize{
-#'  \item{for type 'dot': as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero}
-#'  \item{for type 'cosine': as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) }
+#'  \item for type 'dot': as the square root of the average inner product of the vector elements (sqrt(sum(x . y) / ncol(x))) capped to zero
+#'  \item for type 'cosine': as the the cosine similarity, namely sum(x . y) / (sum(x^2)*sum(y^2)) 
 #' }
 #' @param x a matrix with embeddings where the rownames of the matrix provide the label of the term
 #' @param y a matrix with embeddings where the rownames of the matrix provide the label of the term
