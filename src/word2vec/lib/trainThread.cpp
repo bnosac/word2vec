@@ -10,10 +10,20 @@
 
 namespace w2v {
     trainThread_t::trainThread_t(uint8_t _id, const sharedData_t &_sharedData) :
-            m_sharedData(_sharedData), m_randomDevice(), m_randomGenerator(m_randomDevice()),
+            m_sharedData(_sharedData),
             m_rndWindowShift(0, static_cast<short>((m_sharedData.trainSettings->window - 1))),
             m_downSampling(), m_nsDistribution(), m_hiddenLayerVals(), m_hiddenLayerErrors(),
             m_wordReader(), m_thread() {
+
+        Rcpp::Environment global_env = Rcpp::Environment::global_env();
+        if (!global_env.exists(".Random.seed")) {
+            std::random_device rd;
+            m_randomGenerator = std::mt19937_64(rd());
+        }
+        else {
+            Rcpp::IntegerVector seed_vec = global_env[".Random.seed"];
+            m_randomGenerator = std::mt19937_64(static_cast<uint64_t>(seed_vec[1]));
+        }
 
         if (!m_sharedData.trainSettings) {
             throw std::runtime_error("train settings are not initialized");
