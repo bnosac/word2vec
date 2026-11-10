@@ -58,7 +58,6 @@ namespace w2v {
     private:
         sharedData_t m_sharedData;
         
-        std::random_device m_randomDevice;
         std::mt19937_64 m_randomGenerator;
         std::uniform_int_distribution<short> m_rndWindowShift;
         std::unique_ptr<downSampling_t> m_downSampling;
